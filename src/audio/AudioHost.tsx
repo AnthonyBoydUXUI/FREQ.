@@ -48,7 +48,7 @@ export function AudioHost() {
     );
   }, [phase, hovered, pointer.active, pointer.ndcX, transformation, unlocked]);
 
-  const label = hovered ? regionById[hovered].label : null;
+  const label = hovered && regionById[hovered] ? regionById[hovered].label : null;
   const text = captionFor(phase, label, muted || !unlocked);
 
   return (

@@ -55,7 +55,7 @@ export default function RootLayout({
     <html lang="en" className={`${sans.variable} ${serif.variable}`}>
       <body>
         <a className="skip-link" href="/journey">
-          Skip to accessible journey
+          Read this as a page instead
         </a>
         {children}
       </body>

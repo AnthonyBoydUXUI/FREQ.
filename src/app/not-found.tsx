@@ -6,7 +6,7 @@ export default function NotFound() {
       <p className="kicker">Missing</p>
       <h1>This mark is not here.</h1>
       <p className="lede">
-        <Link href="/">Return to the drawing</Link>
+        <Link href="/">Back to the picture</Link>
       </p>
     </main>
   );

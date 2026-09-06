@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { pointInPolygon, polygonBounds, centroid } from "@/semantic/hitTest";
+import {
+  pointInPolygon,
+  polygonBounds,
+  centroid,
+  clientToSheetUv,
+  regionAt,
+  polygonToClipPath,
+} from "@/semantic/hitTest";
 
 const square: [number, number][] = [
   [0.2, 0.2],
@@ -29,5 +36,38 @@ describe("centroid", () => {
     const c = centroid(square);
     expect(c.x).toBeCloseTo(0.4);
     expect(c.y).toBeCloseTo(0.4);
+  });
+});
+
+describe("clientToSheetUv", () => {
+  const sheet = { left: 100, top: 50, width: 200, height: 400 };
+
+  it("maps a point on the sheet to 0-1 uv", () => {
+    expect(clientToSheetUv(200, 250, sheet)).toEqual({
+      u: 0.5,
+      v: 0.5,
+      inside: true,
+    });
+  });
+
+  it("marks parchment around the sheet as outside", () => {
+    expect(clientToSheetUv(20, 20, sheet).inside).toBe(false);
+  });
+});
+
+describe("regionAt", () => {
+  const items = [{ id: "cowl" as const, polygon: square }];
+
+  it("returns the region under a uv point", () => {
+    expect(regionAt(0.4, 0.4, items)).toBe("cowl");
+    expect(regionAt(0.9, 0.9, items)).toBeNull();
+  });
+});
+
+describe("polygonToClipPath", () => {
+  it("turns uv vertices into a CSS polygon", () => {
+    expect(polygonToClipPath(square)).toBe(
+      "polygon(20% 20%, 60% 20%, 60% 60%, 20% 60%)",
+    );
   });
 });

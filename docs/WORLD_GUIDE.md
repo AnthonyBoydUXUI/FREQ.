@@ -12,19 +12,19 @@ The strongest idea is the simplest: a person touches a mark on a hand-drawn imag
 
 If a proposed feature does not serve that sentence, it does not ship.
 
-## First public experience
+## Public experience
 
 Protect this version:
 
-1. One drawing
-2. Three invisible interaction regions
-3. One astonishing transformation
-4. One complete spatial world
-5. A return to the original drawing
+1. Three drawings, each a territory
+2. Three invisible interaction regions per drawing
+3. One astonishing transformation per portal
+4. One complete spatial world unfolded from that photograph
+5. A return to the original drawing, or travel through the far mark
 
-That is enough. Depth before breadth. Quiet at first, then unexpected depth. Less “look what the technology can do.” More “how was all of that already inside this drawing?”
+Quiet at first, then unexpected depth. Less “look what the technology can do.” More “how was all of that already inside this drawing?”
 
-Do not add AR, VR, AI, extra territories, curator tools, generative publish, wallets, or NFT galleries until this loop feels authored.
+AR, VR, curator tools, and generative drafts exist as authored paths. Generative media never auto-publishes. Wallets and NFT galleries remain prohibited.
 
 ## Devices
 

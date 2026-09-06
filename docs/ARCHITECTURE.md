@@ -40,5 +40,11 @@ World graph, regions, and assets are authored in-repo. The Next.js `/api` routes
 
 - `GET /api/health` — liveness and persistence mode
 - `GET|POST /api/memory` — anonymous region counts
-- `POST /api/telemetry` — allowlisted anonymous events (`first_visual`, `audio_init`, `enter_world`, `return`, `webgl_fail`)
-- `GET /api/provenance` — hashes of the three drawings; Web3 does not apply as an interface yet
+- `POST /api/telemetry` — allowlisted anonymous events (`first_visual`, `audio_init`, `enter_world`, `return`, `travel`, `webgl_fail`)
+- `GET /api/provenance` — hashes of the three drawings; Web3 does not apply as an interface
+- `GET /api/echo` — today’s graphite echo; strokes only if the curator approved
+- `GET|POST /api/studio` — curator desk; optional `CURATOR_KEY`
+
+## Territories
+
+`/` Armor. `/t/facet` Facet. `/t/signal` Signal. `/journey` still path. `/studio` curator. `/ar` paper in the room. `/vr` seated or WebXR.

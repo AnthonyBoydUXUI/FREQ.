@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useEngine } from "@/engine/store";
+import { GuideLine } from "@/ui/GuideLine";
+import type { ArtworkId } from "@/engine/types";
 
-export function SystemChrome() {
+export function SystemChrome({ artworkId }: { artworkId?: ArtworkId }) {
   const muted = useEngine((s) => s.muted);
   const volume = useEngine((s) => s.volume);
   const captions = useEngine((s) => s.captions);
   const phase = useEngine((s) => s.phase);
-  const hovered = useEngine((s) => s.hoveredRegionId);
   const toggleMuted = useEngine((s) => s.toggleMuted);
   const setVolume = useEngine((s) => s.setVolume);
   const setCaptions = useEngine((s) => s.setCaptions);
@@ -22,19 +23,22 @@ export function SystemChrome() {
         <p className="mark" aria-hidden="true">
           FREQ.
         </p>
-        <p className="sr-live" aria-live="polite">
-          {phase === "explore"
-            ? "Inside the drawing. Drag, scroll, or use arrows to move. The far mark returns you."
-            : hovered
-              ? `${hovered} is responding.`
-              : "The drawing is still."}
-        </p>
+        <GuideLine artworkId={artworkId} />
       </div>
 
       <div className="chrome-right">
         {phase === "explore" || phase === "enter" ? (
-          <button type="button" className="text-button" onClick={requestReturn}>
-            Return
+          <button type="button" className="text-button go-back" onClick={requestReturn}>
+            Go back
+          </button>
+        ) : null}
+        {phase === "explore" ? (
+          <button
+            type="button"
+            className="text-button go-back"
+            onClick={() => useEngine.getState().requestTravel()}
+          >
+            Next picture
           </button>
         ) : null}
         <button
@@ -46,7 +50,7 @@ export function SystemChrome() {
           }}
           aria-pressed={!muted}
         >
-          {muted ? "Sound" : "Sound on"}
+          {muted ? "Turn sound on" : "Turn sound off"}
         </button>
         {!muted ? (
           <label className="volume">
@@ -71,13 +75,13 @@ export function SystemChrome() {
           aria-pressed={captions}
           onClick={() => setCaptions(!captions)}
         >
-          Captions
+          {captions ? "Hide captions" : "Show captions"}
         </button>
-        <Link className="text-button quiet-control" href="/journey">
-          Journey
+        <Link className="text-button" href="/journey">
+          Read this as a page
         </Link>
         {webgl === false ? (
-          <span className="quiet">Flat field</span>
+          <span className="quiet">This picture stays still</span>
         ) : null}
       </div>
     </div>

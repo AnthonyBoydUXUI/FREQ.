@@ -13,7 +13,7 @@ export function rememberCollective(regionId: RegionId) {
 }
 
 export function report(
-  event: "webgl_fail" | "audio_init" | "first_visual" | "enter_world" | "return",
+  event: "webgl_fail" | "audio_init" | "first_visual" | "enter_world" | "return" | "travel",
   value?: number,
 ) {
   if (typeof window === "undefined") return;

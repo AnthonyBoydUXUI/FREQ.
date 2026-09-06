@@ -4,22 +4,20 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
-import { heroArtwork, regionById } from "@/content/artworks";
+import { artworkById, portalFor } from "@/content/artworks";
 import { DRAWING_HEIGHT, DRAWING_WIDTH } from "@/engine/types";
 import { useEngine } from "@/engine/store";
 import { drawingFragment, drawingVertex } from "@/experience/geometry";
 import { profileFor } from "@/quality/detect";
 import { seedUnit } from "@/engine/dailySeed";
-import { woundAmount } from "@/engine/phases";
+import { canSelectRegion, woundAmount } from "@/engine/phases";
 
 export function DrawingField() {
+  const artworkId = useEngine((s) => s.artworkId);
+  const artwork = artworkById[artworkId];
+  const portal = portalFor(artworkId);
   const [map, depth, paper, mask] = useTexture(
-    [
-      heroArtwork.paths.display,
-      heroArtwork.paths.depth,
-      heroArtwork.paths.paper,
-      regionById.cowl.mask,
-    ],
+    [artwork.paths.display, artwork.paths.depth, artwork.paths.paper, portal.mask],
     (loaded) => {
       loaded[0].colorSpace = THREE.SRGBColorSpace;
       loaded[1].colorSpace = THREE.NoColorSpace;
@@ -109,7 +107,19 @@ export function DrawingField() {
 
   return (
     <group ref={group}>
-      <mesh renderOrder={1} userData={{ freq: "drawing" }}>
+      <mesh
+        renderOrder={1}
+        userData={{ freq: "drawing" }}
+        onClick={(event) => {
+          event.stopPropagation();
+          const engine = useEngine.getState();
+          engine.unlockAudio();
+          if (canSelectRegion(engine.phase)) {
+            engine.rememberVisit(portalFor(engine.artworkId).id);
+            engine.enterWorld();
+          }
+        }}
+      >
         <planeGeometry args={[DRAWING_WIDTH, DRAWING_HEIGHT, 72, 96]} />
         <primitive object={material} attach="material" />
       </mesh>

@@ -96,6 +96,97 @@ ARMOR_REGIONS = {
     },
 }
 
+# Facet and Signal photographs are already upright. Authored against portrait pixels.
+FACET_REGIONS = {
+    "visor": {
+        "label": "Visor",
+        "role": "helmet",
+        "polygon": [
+            (0.40, 0.18),
+            (0.68, 0.16),
+            (0.80, 0.28),
+            (0.76, 0.46),
+            (0.52, 0.50),
+            (0.36, 0.34),
+        ],
+        "color": (214, 196, 164, 90),
+    },
+    "horns": {
+        "label": "Horns",
+        "role": "structure",
+        "polygon": [
+            (0.34, 0.06),
+            (0.58, 0.04),
+            (0.70, 0.14),
+            (0.62, 0.22),
+            (0.40, 0.22),
+            (0.30, 0.12),
+        ],
+        "color": (160, 150, 138, 90),
+    },
+    "harness": {
+        "label": "Harness",
+        "role": "threshold",
+        "polygon": [
+            (0.16, 0.50),
+            (0.50, 0.46),
+            (0.64, 0.58),
+            (0.58, 0.88),
+            (0.20, 0.90),
+            (0.10, 0.68),
+        ],
+        "color": (120, 118, 112, 90),
+    },
+}
+
+SIGNAL_REGIONS = {
+    "crown": {
+        "label": "Crown",
+        "role": "helmet",
+        "polygon": [
+            (0.10, 0.02),
+            (0.36, 0.00),
+            (0.40, 0.14),
+            (0.28, 0.24),
+            (0.08, 0.20),
+            (0.06, 0.08),
+        ],
+        "color": (214, 196, 164, 90),
+    },
+    "mask": {
+        "label": "Mask",
+        "role": "structure",
+        "polygon": [
+            (0.30, 0.26),
+            (0.62, 0.24),
+            (0.78, 0.38),
+            (0.74, 0.56),
+            (0.44, 0.58),
+            (0.26, 0.42),
+        ],
+        "color": (160, 150, 138, 90),
+    },
+    "strap": {
+        "label": "Strap",
+        "role": "threshold",
+        "polygon": [
+            (0.20, 0.54),
+            (0.70, 0.50),
+            (0.86, 0.64),
+            (0.76, 0.86),
+            (0.30, 0.88),
+            (0.14, 0.70),
+        ],
+        "color": (120, 118, 112, 90),
+    },
+}
+
+REGIONS_BY_ARTWORK = {
+    "armor": ARMOR_REGIONS,
+    "facet": FACET_REGIONS,
+    "signal": SIGNAL_REGIONS,
+}
+
 
 def ensure_dirs() -> None:
     PUBLIC.mkdir(parents=True, exist_ok=True)
@@ -214,13 +305,13 @@ def sample_strokes(lum: np.ndarray, count: int = 360) -> list[dict]:
     return points
 
 
-def draw_region_masks(width: int, height: int) -> dict:
-    out_dir = PUBLIC / "armor"
+def draw_region_masks(artwork_id: str, width: int, height: int) -> dict:
+    out_dir = PUBLIC / artwork_id
     atlas = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     atlas_draw = ImageDraw.Draw(atlas, "RGBA")
     masks = {}
 
-    for region_id, region in ARMOR_REGIONS.items():
+    for region_id, region in REGIONS_BY_ARTWORK[artwork_id].items():
         mask = Image.new("L", (width, height), 0)
         draw = ImageDraw.Draw(mask)
         pts = [(x * (width - 1), y * (height - 1)) for x, y in region["polygon"]]
@@ -233,7 +324,7 @@ def draw_region_masks(width: int, height: int) -> dict:
             "label": region["label"],
             "role": region["role"],
             "polygon": region["polygon"],
-            "mask": f"/artworks/armor/mask-{region_id}.png",
+            "mask": f"/artworks/{artwork_id}/mask-{region_id}.png",
         }
 
     atlas.convert("RGB").save(out_dir / "regions-preview.jpg", quality=88)
@@ -315,27 +406,25 @@ def fade(samples: np.ndarray, rate: int, seconds: float = 0.12) -> np.ndarray:
 def main() -> None:
     ensure_dirs()
     catalog = []
-    armor_strokes = []
 
     for artwork_id, meta in ARTWORKS.items():
         info, strokes = process_drawing(artwork_id, meta)
+        info["regions"] = draw_region_masks(artwork_id, info["width"], info["height"])
         catalog.append(info)
-        if artwork_id == "armor":
-            armor_strokes = strokes
-            info["regions"] = draw_region_masks(info["width"], info["height"])
+        (GENERATED / f"{artwork_id}-strokes.json").write_text(json.dumps(strokes))
 
     audio = generate_audio()
     payload = {
-        "version": 1,
+        "version": 2,
         "heroArtworkId": "armor",
         "artworks": catalog,
         "audio": audio,
         "notes": "Source photographs are camera captures with EXIF rotation baked so pixels are upright. Replace archival sources with original scans (same filenames) and re-run this script.",
     }
     (GENERATED / "catalog.json").write_text(json.dumps(payload, indent=2))
-    (GENERATED / "armor-strokes.json").write_text(json.dumps(armor_strokes))
     print(json.dumps({k: v for k, v in payload.items() if k != "artworks"}, indent=2))
     print("artworks", [a["id"] for a in catalog])
+    print("regions", {a["id"]: list(a["regions"].keys()) for a in catalog})
 
 
 if __name__ == "__main__":

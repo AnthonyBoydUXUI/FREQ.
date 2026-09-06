@@ -4,13 +4,17 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
-import { cowlPanels, heroArtwork, regionById } from "@/content/artworks";
+import { artworkById, portalFor, portalPanels } from "@/content/artworks";
 import { useEngine } from "@/engine/store";
 import { createUvPolygonGeometry } from "@/experience/geometry";
 
 export function HelmetTransformation() {
+  const artworkId = useEngine((s) => s.artworkId);
+  const artwork = artworkById[artworkId];
+  const portal = portalFor(artworkId);
+  const panels = portalPanels(artworkId);
   const [map, mask] = useTexture(
-    [heroArtwork.paths.display, regionById.cowl.mask],
+    [artwork.paths.display, portal.mask],
     (loaded) => {
       loaded[0].colorSpace = THREE.SRGBColorSpace;
       loaded[1].colorSpace = THREE.NoColorSpace;
@@ -20,15 +24,15 @@ export function HelmetTransformation() {
   const progress = useEngine((s) => s.phaseProgress);
   const reducedMotion = useEngine((s) => s.reducedMotion);
   const group = useRef<THREE.Group>(null);
-  const panels = useRef<THREE.Group>(null);
+  const panelGroup = useRef<THREE.Group>(null);
 
-  const cowlGeometry = useMemo(
-    () => createUvPolygonGeometry(regionById.cowl.polygon),
-    [],
+  const portalGeometry = useMemo(
+    () => createUvPolygonGeometry(portalFor(artworkId).polygon),
+    [artworkId],
   );
   const panelGeometries = useMemo(
-    () => cowlPanels.map((panel) => createUvPolygonGeometry(panel.uv)),
-    [],
+    () => portalPanels(artworkId).map((panel) => createUvPolygonGeometry(panel.uv)),
+    [artworkId],
   );
 
   useFrame((_, delta) => {
@@ -38,7 +42,7 @@ export function HelmetTransformation() {
       phase === "enter" ||
       phase === "explore" ||
       phase === "return";
-    if (!group.current || !panels.current) return;
+    if (!group.current || !panelGroup.current) return;
 
     const reverse = phase === "return" ? 1 - progress : 1;
     const touch = phase === "touch" ? progress : phase === "encounter" ? 0 : 1;
@@ -77,10 +81,10 @@ export function HelmetTransformation() {
     );
 
     const showPanels = opened > 0.02 || (phase === "return" && progress < 0.55);
-    panels.current.visible = showPanels;
+    panelGroup.current.visible = showPanels;
     group.current.children[0].visible = !showPanels || opened < 0.28;
 
-    panels.current.children.forEach((child, index) => {
+    panelGroup.current.children.forEach((child, index) => {
       const dir = index % 2 === 0 ? 1 : -1;
       const yaw = opened * dir * (0.42 + index * 0.07);
       const pitch = opened * -0.16;
@@ -93,7 +97,7 @@ export function HelmetTransformation() {
 
   return (
     <group ref={group} visible={false}>
-      <mesh geometry={cowlGeometry} renderOrder={3}>
+      <mesh geometry={portalGeometry} renderOrder={3}>
         <meshBasicMaterial
           map={map}
           alphaMap={mask}
@@ -102,9 +106,9 @@ export function HelmetTransformation() {
           toneMapped={false}
         />
       </mesh>
-      <group ref={panels}>
+      <group ref={panelGroup}>
         {panelGeometries.map((geometry, index) => (
-          <mesh key={cowlPanels[index].id} geometry={geometry} renderOrder={4}>
+          <mesh key={panels[index].id} geometry={geometry} renderOrder={4}>
             <meshBasicMaterial
               map={map}
               side={THREE.DoubleSide}

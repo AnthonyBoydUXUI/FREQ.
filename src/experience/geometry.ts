@@ -99,13 +99,13 @@ void main() {
   float depth = texture2D(uDepth, uv).r;
   vDepth = depth;
   float dist = distance(uv, uPointer);
-  float hover = smoothstep(0.26, 0.0, dist) * uHover;
+  float hover = smoothstep(0.34, 0.0, dist) * uHover;
   vHover = hover;
   vec3 pos = position;
   // Wrinkles and graphite pressure from the photograph — not a sculpted mesh.
   pos.z += (depth - 0.38) * 0.12 * uLift;
   // Attention separates the mark from the paper. Darker hatching lifts more.
-  pos.z += hover * mix(0.012, 0.09, depth);
+  pos.z += hover * mix(0.02, 0.13, depth);
   pos.z += sin(uTime * 0.22 + depth * 7.0) * 0.0018 * uBreath;
   gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
 }
@@ -125,7 +125,7 @@ void main() {
   vec3 paper = texture2D(uPaper, vUv).rgb;
   // Hover is line-separation, not a grade. Graphite darkens; paper stays.
   vec3 separated = mix(faithful * 1.015, faithful * 0.82, vDepth);
-  vec3 color = mix(faithful, separated, vHover * 0.45);
+  vec3 color = mix(faithful, separated, vHover * 0.62);
   float mask = texture2D(uMask, vUv).r;
   float hole = mask * uWound;
   float edge = smoothstep(0.04, 0.32, hole) * (1.0 - smoothstep(0.42, 0.82, hole));

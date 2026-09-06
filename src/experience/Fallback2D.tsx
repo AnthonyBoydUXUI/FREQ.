@@ -1,16 +1,19 @@
 "use client";
 
 import { useMemo } from "react";
-import { heroArtwork, regions } from "@/content/artworks";
+import { artworkById, portalFor, regionsFor } from "@/content/artworks";
 import { useEngine } from "@/engine/store";
 import { polygonBounds } from "@/semantic/hitTest";
 import { canSelectRegion } from "@/engine/phases";
 
 export function Fallback2D() {
+  const artworkId = useEngine((s) => s.artworkId);
+  const artwork = artworkById[artworkId];
+  const regions = regionsFor(artworkId);
+  const portal = portalFor(artworkId);
   const pointer = useEngine((s) => s.pointer);
   const hovered = useEngine((s) => s.hoveredRegionId);
   const phase = useEngine((s) => s.phase);
-  const selectRegion = useEngine((s) => s.selectRegion);
   const setHoveredRegion = useEngine((s) => s.setHoveredRegion);
   const unlockAudio = useEngine((s) => s.unlockAudio);
   const rememberVisit = useEngine((s) => s.rememberVisit);
@@ -23,13 +26,18 @@ export function Fallback2D() {
 
   return (
     <div className="fallback-stage" aria-hidden={false}>
-      <div className="fallback-paper" style={{ transform: tilt }}>
+      <div
+        className="fallback-paper"
+        style={{ transform: tilt }}
+        onClick={() => {
+          if (!canSelectRegion(phase)) return;
+          unlockAudio();
+          rememberVisit(portal.id);
+          useEngine.getState().enterWorld();
+        }}
+      >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={heroArtwork.paths.display}
-          alt=""
-          className="fallback-image"
-        />
+        <img src={artwork.paths.display} alt="" className="fallback-image" />
         {regions.map((region) => {
           const box = polygonBounds(region.polygon);
           const active = hovered === region.id;
@@ -49,10 +57,11 @@ export function Fallback2D() {
               onMouseEnter={() => setHoveredRegion(region.id)}
               onMouseLeave={() => setHoveredRegion(null)}
               onFocus={() => useEngine.getState().setFocusedRegion(region.id)}
-              onClick={() => {
+              onClick={(event) => {
+                event.stopPropagation();
                 unlockAudio();
                 rememberVisit(region.id);
-                if (canSelectRegion(phase)) selectRegion(region.id);
+                if (canSelectRegion(phase)) useEngine.getState().enterWorld();
               }}
             />
           );
@@ -61,10 +70,13 @@ export function Fallback2D() {
       {phase === "explore" || phase === "enter" || phase === "transform" ? (
         <div className="fallback-world">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={heroArtwork.paths.display} alt="" />
-          <p>Inside the cowl, the same paper continues. Graphite becomes space.</p>
+          <img src={artwork.paths.display} alt="" />
+          <p>
+            Inside the {portal.label.toLowerCase()}, the same paper continues. Slide to
+            look. Press Go back when you want the picture again.
+          </p>
           <button type="button" onClick={() => useEngine.getState().requestReturn()}>
-            Return to the drawing
+            Go back
           </button>
         </div>
       ) : null}

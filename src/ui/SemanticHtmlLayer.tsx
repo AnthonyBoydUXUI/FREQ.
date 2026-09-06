@@ -1,20 +1,45 @@
 "use client";
 
-import { regions } from "@/content/artworks";
+import { regionsFor, portalFor } from "@/content/artworks";
+import type { ArtworkId } from "@/engine/types";
 import { polygonBounds } from "@/semantic/hitTest";
 import { useEngine } from "@/engine/store";
 import { canSelectRegion } from "@/engine/phases";
 
-export function SemanticHtmlLayer({ enabled }: { enabled: boolean }) {
+export function SemanticHtmlLayer({
+  enabled,
+  artworkId,
+}: {
+  enabled: boolean;
+  artworkId?: ArtworkId;
+}) {
+  const storeId = useEngine((s) => s.artworkId);
+  const current = artworkId ?? storeId;
+  const regions = regionsFor(current);
+  const portal = portalFor(current);
   const setFocusedRegion = useEngine((s) => s.setFocusedRegion);
+  const setHoveredRegion = useEngine((s) => s.setHoveredRegion);
   const selectRegion = useEngine((s) => s.selectRegion);
+  const enterWorld = useEngine((s) => s.enterWorld);
   const unlockAudio = useEngine((s) => s.unlockAudio);
   const rememberVisit = useEngine((s) => s.rememberVisit);
   const phase = useEngine((s) => s.phase);
   const focused = useEngine((s) => s.focusedRegionId);
+  const hovered = useEngine((s) => s.hoveredRegionId);
 
   return (
     <div className="semantic-html" data-enabled={enabled ? "true" : "false"}>
+      <button
+        type="button"
+        className="sheet-enter"
+        aria-label="Touch the picture to go inside the drawing."
+        onClick={() => {
+          if (!canSelectRegion(phase)) return;
+          unlockAudio();
+          rememberVisit(portal.id);
+          enterWorld();
+        }}
+      />
       {regions.map((region) => {
         const box = polygonBounds(region.polygon);
         return (
@@ -30,16 +55,29 @@ export function SemanticHtmlLayer({ enabled }: { enabled: boolean }) {
             }}
             aria-label={region.accessibleLabel}
             data-focused={focused === region.id ? "true" : "false"}
+            data-hovered={hovered === region.id ? "true" : "false"}
+            onPointerEnter={() => setHoveredRegion(region.id)}
+            onPointerLeave={() => {
+              if (useEngine.getState().hoveredRegionId === region.id) {
+                setHoveredRegion(null);
+              }
+            }}
             onFocus={() => setFocusedRegion(region.id)}
             onBlur={() => {
               if (useEngine.getState().focusedRegionId === region.id) {
                 setFocusedRegion(null);
               }
             }}
-            onClick={() => {
+            onClick={(event) => {
+              event.stopPropagation();
               unlockAudio();
               rememberVisit(region.id);
-              if (canSelectRegion(phase)) selectRegion(region.id);
+              if (!canSelectRegion(phase)) return;
+              if (event.detail === 0) {
+                selectRegion(region.id);
+                return;
+              }
+              enterWorld();
             }}
           />
         );
