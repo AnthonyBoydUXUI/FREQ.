@@ -38,11 +38,12 @@ export function dailyState(
 }
 
 export function captionForDaily(label: string, weather: DailyWeather): string {
+  const mark = label.toLowerCase();
   if (weather === "open") {
-    return `Today the ${label.toLowerCase()} feels slightly more open.`;
+    return `Today a little more open at the ${mark}.`;
   }
   if (weather === "grain") {
-    return `Today the ${label.toLowerCase()} holds more grain.`;
+    return `Today more grain at the ${mark}.`;
   }
-  return `Today the ${label.toLowerCase()} is the mark that wants attention.`;
+  return `Today the mark that wants attention is the ${mark}.`;
 }
