@@ -126,6 +126,11 @@ a {
   height: 100% !important;
   z-index: 1;
   touch-action: none;
+  pointer-events: none;
+}
+
+.stage[data-immersed="true"] .freq-canvas {
+  pointer-events: auto;
 }
 
 .drawing-frame {
@@ -158,6 +163,7 @@ a {
 .semantic-html {
   position: absolute;
   inset: 0;
+  z-index: 3;
 }
 
 .semantic-button {
@@ -379,7 +385,7 @@ a {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 1;
+  z-index: 2;
 }
 
 .sheet-hover[data-hidden="true"] {
