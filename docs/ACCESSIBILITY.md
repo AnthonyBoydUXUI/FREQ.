@@ -11,4 +11,7 @@ Target: WCAG 2.2 AA for system UI, journey, and the HTML document around the fie
 - `prefers-reduced-motion` shortens the helmet sequence
 - If WebGL fails, the drawing and regions remain usable
 - No flashing, no forced autoplay
-- Sound has a non-audio equivalent via captions and journey copy
+- Touch and pointer are the same input path
+- 44px minimum targets where the pointer is coarse
+- Safe-area insets on phone notches
+- The drawing remains fully in frame on tall phones and landscape tablets

@@ -23,6 +23,7 @@ body {
   min-height: 100dvh;
   background: var(--parchment);
   color: var(--graphite);
+  overscroll-behavior: none;
 }
 
 html[data-phase="transform"],
@@ -78,6 +79,22 @@ a {
   overflow: hidden;
   background: var(--parchment);
   transition: background 1.2s ease;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --chrome-space: 5.4rem;
+  --frame-pad: 1.1rem;
+  --draw-w: min(
+    calc(100vw - var(--safe-left) - var(--safe-right) - var(--frame-pad) * 2),
+    calc((100dvh - var(--safe-top) - var(--safe-bottom) - var(--chrome-space)) * 0.75),
+    820px
+  );
+  --draw-h: calc(var(--draw-w) * 4 / 3);
 }
 
 .stage[data-immersed="true"] {
@@ -94,12 +111,12 @@ a {
 }
 
 .poster {
-  width: auto;
-  height: min(88dvh, 92vw * 1.333);
-  max-width: min(78vw, 780px);
-  max-height: 88dvh;
+  width: var(--draw-w);
+  height: var(--draw-h);
+  max-width: var(--draw-w);
+  max-height: var(--draw-h);
   inset: auto;
-  top: 50%;
+  top: calc(50% - var(--chrome-space) / 4);
   left: 50%;
   transform: translate(-50%, -50%);
   object-fit: contain;
@@ -116,14 +133,15 @@ a {
   width: 100% !important;
   height: 100% !important;
   z-index: 1;
+  touch-action: none;
 }
 
 .drawing-frame {
   position: absolute;
   inset: 0;
-  width: min(78vw, calc(88dvh * 0.75), 780px);
-  height: min(88dvh, calc(78vw * 1.333));
-  max-height: 88dvh;
+  width: var(--draw-w);
+  height: var(--draw-h);
+  max-height: var(--draw-h);
   aspect-ratio: 3 / 4;
   margin: auto;
   pointer-events: none;
@@ -158,7 +176,8 @@ a {
   justify-content: space-between;
   align-items: flex-end;
   gap: 1rem;
-  padding: 1.1rem 1.2rem 1.15rem;
+  padding: 0.9rem max(1.2rem, var(--safe-right)) max(1rem, var(--safe-bottom))
+    max(1.2rem, var(--safe-left));
   z-index: 8;
   pointer-events: none;
   color: var(--oxidized);
@@ -231,13 +250,13 @@ a {
 
 .captions {
   position: absolute;
-  left: 1.2rem;
-  bottom: 3.3rem;
+  left: max(1.2rem, var(--safe-left));
+  bottom: calc(3.3rem + var(--safe-bottom));
   z-index: 6;
   font-size: 0.78rem;
   color: var(--quiet);
   opacity: 0;
-  max-width: 22rem;
+  max-width: min(22rem, calc(100vw - 2.4rem));
 }
 
 .captions[data-visible="true"] {
@@ -251,7 +270,7 @@ a {
 
 .fallback-paper {
   position: relative;
-  width: min(78vw, calc(88dvh * 0.75), 780px);
+  width: var(--draw-w);
   transform-style: preserve-3d;
 }
 
@@ -303,9 +322,15 @@ a {
 
 .journey {
   min-height: 100dvh;
-  padding: 8vh 7vw 12vh;
+  padding: max(8vh, env(safe-area-inset-top, 0px))
+    max(7vw, env(safe-area-inset-right, 0px))
+    max(12vh, env(safe-area-inset-bottom, 0px))
+    max(7vw, env(safe-area-inset-left, 0px));
   max-width: 72rem;
   margin: 0 auto;
+  touch-action: auto;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .journey header {
@@ -370,6 +395,7 @@ a {
 
 .journey-nav {
   display: flex;
+  flex-wrap: wrap;
   gap: 1.2rem;
   margin-top: 2rem;
   font-size: 0.82rem;
@@ -393,6 +419,42 @@ a {
   .chrome {
     flex-direction: column;
     align-items: flex-start;
+    gap: 0.45rem;
+  }
+  .stage {
+    --chrome-space: 6.4rem;
+    --frame-pad: 0.7rem;
+  }
+  .mark,
+  .text-button,
+  .quiet {
+    font-size: 0.68rem;
+  }
+}
+
+@media (pointer: coarse) {
+  .text-button {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .volume input {
+    min-height: 44px;
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .stage {
+    --chrome-space: 3.2rem;
+    --frame-pad: 0.5rem;
+  }
+  .chrome {
+    flex-direction: row;
+    padding-block: 0.35rem;
+  }
+  .captions {
+    bottom: calc(2.2rem + var(--safe-bottom));
+    font-size: 0.7rem;
   }
 }
 

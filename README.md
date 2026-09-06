@@ -80,6 +80,8 @@ Next.js route handlers are the backend. They travel with the Vercel deployment. 
 - `GET|POST /api/memory` — anonymous cowl / plates / forward counts
 - `POST /api/telemetry` — allowlisted events only
 
+- `GET /api/provenance` — drawing hashes for later authorship attestation
+
 Counts are not shown in the interface. Device-local visits still live in `localStorage`.
 
 ## Supabase
@@ -95,6 +97,14 @@ Optional. Schema is in `supabase/migrations/0001_init.sql`. Apply it only after 
 - First-class `/journey` path
 - WCAG 2.2 AA is the target for system UI and the journey
 
+## Devices
+
+Phone, tablet, and desktop share the same installation. The camera pulls back on tall screens so the sheet is not clipped. Touch drag moves through the nave. Safe areas are respected.
+
+## Web3
+
+Not an interface. `GET /api/provenance` records SHA-256 hashes of the three drawings for a later authorship attestation. No wallet, no token gate, no marketplace.
+
 ## What this slice does not include
 
-AR, VR, curator tools, generative publish, and cross-drawing portals. Those wait until this transformation feels extraordinary.
+AR, VR, curator tools, generative publish, wallets, NFT galleries, and cross-drawing portals. Those wait until this transformation feels extraordinary.

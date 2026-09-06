@@ -24,7 +24,7 @@ export function SystemChrome() {
         </p>
         <p className="sr-live" aria-live="polite">
           {phase === "explore"
-            ? "Inside the drawing. Move forward. The far mark returns you."
+            ? "Inside the drawing. Drag, scroll, or use arrows to move. The far mark returns you."
             : hovered
               ? `${hovered} is responding.`
               : "The drawing is still."}

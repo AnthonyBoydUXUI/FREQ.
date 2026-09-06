@@ -7,8 +7,13 @@ import { useEngine } from "@/engine/store";
 import { centroid } from "@/semantic/hitTest";
 import { regionById } from "@/content/artworks";
 import { uvToLocal } from "@/experience/geometry";
+import {
+  approachDistance,
+  ENCOUNTER_FOV,
+  fitDistance,
+  touchDistance,
+} from "@/experience/framing";
 
-const encounterPos = new THREE.Vector3(0, 0.02, 4.85);
 const encounterLook = new THREE.Vector3(0, 0, 0);
 const cowlCenter = uvToLocal(
   centroid(regionById.cowl.polygon).x,
@@ -16,7 +21,7 @@ const cowlCenter = uvToLocal(
 );
 
 export function CameraDirector() {
-  const { camera } = useThree();
+  const { camera, size } = useThree();
   const look = useRef(new THREE.Vector3());
   const desired = useRef(new THREE.Vector3());
   const desiredLook = useRef(new THREE.Vector3());
@@ -30,8 +35,13 @@ export function CameraDirector() {
       rail,
     } = useEngine.getState();
 
+    const aspect = size.width / Math.max(size.height, 1);
+    const encounterZ = fitDistance(aspect);
+    const approachZ = approachDistance(aspect);
+    const touchZ = touchDistance(aspect);
+
     if (phase === "encounter" || phase === "notice" || phase === "boot") {
-      desired.current.copy(encounterPos);
+      desired.current.set(0, 0.02, encounterZ);
       desiredLook.current.copy(encounterLook);
       if (!reducedMotion) {
         desired.current.x += pointer.ndcX * 0.05;
@@ -44,15 +54,15 @@ export function CameraDirector() {
         centroid(regionById[regionId].polygon).x,
         centroid(regionById[regionId].polygon).y,
       );
-      desired.current.set(focus.x * 0.16, focus.y * 0.14, 3.55);
+      desired.current.set(focus.x * 0.16, focus.y * 0.14, approachZ);
       desiredLook.current.set(focus.x * 0.38, focus.y * 0.34, 0);
     } else if (phase === "touch") {
-      desired.current.set(cowlCenter.x * 0.28, cowlCenter.y * 0.26, 2.7);
+      desired.current.set(cowlCenter.x * 0.28, cowlCenter.y * 0.26, touchZ);
       desiredLook.current.copy(cowlCenter);
     } else if (phase === "transform") {
       const t = progress;
       desired.current.lerpVectors(
-        new THREE.Vector3(cowlCenter.x * 0.32, cowlCenter.y * 0.28, 2.45),
+        new THREE.Vector3(cowlCenter.x * 0.32, cowlCenter.y * 0.28, touchZ * 0.9),
         new THREE.Vector3(cowlCenter.x * 0.08, cowlCenter.y * 0.18 + 0.12, 0.22),
         t,
       );
@@ -82,7 +92,7 @@ export function CameraDirector() {
     } else if (phase === "return") {
       desired.current.lerpVectors(
         new THREE.Vector3(0, 0.82, -2.8),
-        encounterPos,
+        new THREE.Vector3(0, 0.02, encounterZ),
         progress,
       );
       desiredLook.current.lerpVectors(
@@ -103,8 +113,8 @@ export function CameraDirector() {
 
     const persp = camera as THREE.PerspectiveCamera;
     const fovTarget =
-      phase === "explore" || phase === "enter" ? 36 : 28;
-    persp.fov = THREE.MathUtils.damp(persp.fov, reducedMotion ? 28 : fovTarget, 2, delta);
+      phase === "explore" || phase === "enter" ? 36 : ENCOUNTER_FOV;
+    persp.fov = THREE.MathUtils.damp(persp.fov, reducedMotion ? ENCOUNTER_FOV : fovTarget, 2, delta);
     persp.updateProjectionMatrix();
   });
 

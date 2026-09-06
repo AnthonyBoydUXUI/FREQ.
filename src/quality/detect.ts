@@ -1,4 +1,5 @@
 import type { QualityMode } from "@/engine/types";
+import { deviceClassFrom } from "@/quality/device";
 
 export type QualityProfile = {
   mode: QualityMode;
@@ -46,13 +47,20 @@ const PROFILES: Record<QualityMode, QualityProfile> = {
 
 export function detectQuality(): QualityMode {
   if (typeof navigator === "undefined") return "balanced";
-  const ua = navigator.userAgent;
-  const isMobile = /Mobi|Android|iPhone|iPad/i.test(ua);
+  const device = deviceClassFrom({
+    userAgent: navigator.userAgent,
+    maxTouchPoints: navigator.maxTouchPoints,
+    platform: navigator.platform,
+    width: typeof window !== "undefined" ? window.innerWidth : 1200,
+    coarsePointer:
+      typeof window !== "undefined" &&
+      window.matchMedia("(pointer: coarse)").matches,
+  });
   const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
   const cores = navigator.hardwareConcurrency ?? 4;
 
-  if (isMobile && (memory ?? 4) <= 4) return "efficient";
-  if (isMobile) return "balanced";
+  if (device === "phone") return (memory ?? 4) <= 4 ? "efficient" : "balanced";
+  if (device === "tablet") return cores >= 6 ? "high" : "balanced";
   if ((memory ?? 8) >= 8 && cores >= 8) return "high";
   if ((memory ?? 4) <= 4) return "efficient";
   return "balanced";

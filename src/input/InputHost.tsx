@@ -26,18 +26,37 @@ export function InputHost({ target }: { target: HTMLElement | null }) {
       return { x: (x - rect.left) / rect.width, y: (y - rect.top) / rect.height, ndcX: nx, ndcY: ny };
     };
 
+    let lastY = 0;
+    let dragging = false;
+
     const onMove = (event: PointerEvent) => {
       const mapped = toNdc(event);
+      const pressed = event.buttons > 0 || event.pressure > 0;
       setPointer({
         x: mapped.x,
         y: mapped.y,
         ndcX: mapped.ndcX,
         ndcY: mapped.ndcY,
-        active: event.buttons > 0,
+        active: pressed,
       });
+      if (dragging && canExplore(useEngine.getState().phase)) {
+        const dy = event.clientY - lastY;
+        lastY = event.clientY;
+        if (dy !== 0) {
+          const { rail } = useEngine.getState();
+          setRail(rail + dy * 0.0036);
+        }
+      }
     };
     const onDown = (event: PointerEvent) => {
       unlockAudio();
+      dragging = true;
+      lastY = event.clientY;
+      try {
+        target.setPointerCapture(event.pointerId);
+      } catch {
+        // Capture is best-effort on older browsers.
+      }
       const mapped = toNdc(event);
       setPointer({
         x: mapped.x,
@@ -47,8 +66,20 @@ export function InputHost({ target }: { target: HTMLElement | null }) {
         active: true,
       });
     };
-    const onUp = () => setPointer({ active: false });
-    const onLeave = () => setPointer({ inside: false, active: false });
+    const onUp = (event: PointerEvent) => {
+      dragging = false;
+      try {
+        if (target.hasPointerCapture(event.pointerId)) {
+          target.releasePointerCapture(event.pointerId);
+        }
+      } catch {
+        // ignore
+      }
+      setPointer({ active: false });
+    };
+    const onLeave = () => {
+      if (!dragging) setPointer({ inside: false, active: false });
+    };
     const onWheel = (event: WheelEvent) => {
       const { phase, rail } = useEngine.getState();
       if (!canExplore(phase)) return;
@@ -59,12 +90,14 @@ export function InputHost({ target }: { target: HTMLElement | null }) {
     target.addEventListener("pointermove", onMove);
     target.addEventListener("pointerdown", onDown);
     target.addEventListener("pointerup", onUp);
+    target.addEventListener("pointercancel", onUp);
     target.addEventListener("pointerleave", onLeave);
     target.addEventListener("wheel", onWheel, { passive: false });
     return () => {
       target.removeEventListener("pointermove", onMove);
       target.removeEventListener("pointerdown", onDown);
       target.removeEventListener("pointerup", onUp);
+      target.removeEventListener("pointercancel", onUp);
       target.removeEventListener("pointerleave", onLeave);
       target.removeEventListener("wheel", onWheel);
     };

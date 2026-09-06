@@ -24,7 +24,15 @@ Protect this version:
 
 That is enough. Depth before breadth. Quiet at first, then unexpected depth. Less “look what the technology can do.” More “how was all of that already inside this drawing?”
 
-Do not add AR, VR, AI, extra territories, curator tools, or generative publish until this loop feels authored.
+Do not add AR, VR, AI, extra territories, curator tools, generative publish, wallets, or NFT galleries until this loop feels authored.
+
+## Devices
+
+The same installation must hold on phone, tablet, and desktop. The sheet stays fully in frame. Touch is a first-class pointer. System chrome respects safe areas. Quality drops on small phones before the drawing does.
+
+## Web3
+
+Web3 applies only as later provenance of the three drawings. It does not apply as the interface.
 
 ## Analog imperfection
 
@@ -111,4 +119,4 @@ FREQ. does not need to prove everything in version one. Guard against adding sys
 
 ## Prohibited clichés
 
-Generic holograms, cyberpunk cities, neon grids, NFT galleries, metaverse lobbies, floating HUD panels, monument rows of the same image, metal towers, excessive particles, AI-concept-art polish, color grades that “improve” the scan.
+Generic holograms, cyberpunk cities, neon grids, NFT galleries, wallet popups, metaverse lobbies, floating HUD panels, monument rows of the same image, metal towers, excessive particles, AI-concept-art polish, color grades that “improve” the scan.
