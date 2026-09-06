@@ -3,19 +3,21 @@
 import { useEngine } from "@/engine/store";
 import { actionGuide } from "@/ui/guide";
 import { dailyState } from "@/engine/daily";
+import type { ArtworkId } from "@/engine/types";
 
-export function GuideLine() {
+export function GuideLine({ artworkId }: { artworkId?: ArtworkId }) {
   const phase = useEngine((s) => s.phase);
   const hovered = useEngine((s) => s.hoveredRegionId);
   const inside = useEngine((s) => s.pointer.inside);
-  const artworkId = useEngine((s) => s.artworkId);
+  const storeId = useEngine((s) => s.artworkId);
   const pendingTravelId = useEngine((s) => s.pendingTravelId);
-  const daily = dailyState(artworkId);
+  const current = artworkId ?? storeId;
+  const daily = dailyState(current);
   const line = actionGuide({
     phase,
     hovered,
     inside,
-    artworkId,
+    artworkId: current,
     pendingTravelId,
     dailyCaption: daily.caption,
   });

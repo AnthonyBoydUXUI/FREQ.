@@ -1,14 +1,22 @@
 "use client";
 
 import { regionsFor, portalFor } from "@/content/artworks";
+import type { ArtworkId } from "@/engine/types";
 import { polygonBounds } from "@/semantic/hitTest";
 import { useEngine } from "@/engine/store";
 import { canSelectRegion } from "@/engine/phases";
 
-export function SemanticHtmlLayer({ enabled }: { enabled: boolean }) {
-  const artworkId = useEngine((s) => s.artworkId);
-  const regions = regionsFor(artworkId);
-  const portal = portalFor(artworkId);
+export function SemanticHtmlLayer({
+  enabled,
+  artworkId,
+}: {
+  enabled: boolean;
+  artworkId?: ArtworkId;
+}) {
+  const storeId = useEngine((s) => s.artworkId);
+  const current = artworkId ?? storeId;
+  const regions = regionsFor(current);
+  const portal = portalFor(current);
   const setFocusedRegion = useEngine((s) => s.setFocusedRegion);
   const setHoveredRegion = useEngine((s) => s.setHoveredRegion);
   const selectRegion = useEngine((s) => s.selectRegion);

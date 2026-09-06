@@ -101,15 +101,15 @@ export function FreqStage({ artworkId = "armor" }: { artworkId?: ArtworkId }) {
         />
         {webgl !== false ? <FreqCanvas onReady={() => setCanvasReady(true)} /> : null}
         {webgl === false ? <Fallback2D /> : null}
-        <SheetHover />
+        <SheetHover artworkId={artworkId} />
         <EchoLayer />
-        <SemanticHtmlLayer enabled />
+        <SemanticHtmlLayer enabled artworkId={artworkId} />
       </div>
       <RelatedMarks currentId={artworkId} />
       <InputHost target={stageEl} sheet={sheetEl} />
       <PhaseTicker />
       <FreqCursor />
-      <SystemChrome />
+      <SystemChrome artworkId={artworkId} />
       <AudioHost />
     </section>
   );

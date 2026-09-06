@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useEngine } from "@/engine/store";
 import { GuideLine } from "@/ui/GuideLine";
+import type { ArtworkId } from "@/engine/types";
 
-export function SystemChrome() {
+export function SystemChrome({ artworkId }: { artworkId?: ArtworkId }) {
   const muted = useEngine((s) => s.muted);
   const volume = useEngine((s) => s.volume);
   const captions = useEngine((s) => s.captions);
@@ -22,7 +23,7 @@ export function SystemChrome() {
         <p className="mark" aria-hidden="true">
           FREQ.
         </p>
-        <GuideLine />
+        <GuideLine artworkId={artworkId} />
       </div>
 
       <div className="chrome-right">
