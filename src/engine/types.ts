@@ -44,5 +44,5 @@ export const TRANSFORMATION_FOR_PHASE: Record<Phase, number> = {
 
 export const HERO_ARTWORK_ID = "armor";
 
-export const DRAWING_WIDTH = 2.4;
-export const DRAWING_HEIGHT = 1.8;
+export const DRAWING_WIDTH = 1.65;
+export const DRAWING_HEIGHT = 2.2;

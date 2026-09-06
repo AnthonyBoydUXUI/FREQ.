@@ -94,9 +94,10 @@ a {
 }
 
 .poster {
-  width: min(88vw, calc(82dvh * 1.333), 1280px);
-  height: auto;
-  max-height: 82dvh;
+  width: auto;
+  height: min(88dvh, 92vw * 1.333);
+  max-width: min(78vw, 780px);
+  max-height: 88dvh;
   inset: auto;
   top: 50%;
   left: 50%;
@@ -121,9 +122,10 @@ a {
 .drawing-frame {
   position: absolute;
   inset: 0;
-  width: min(92vw, 92dvh * 1.333);
-  height: min(86dvh, 69vw);
-  max-height: 86dvh;
+  width: min(78vw, calc(88dvh * 0.75), 780px);
+  height: min(88dvh, calc(78vw * 1.333));
+  max-height: 88dvh;
+  aspect-ratio: 3 / 4;
   margin: auto;
   pointer-events: none;
 }
@@ -245,7 +247,7 @@ a {
 
 .fallback-paper {
   position: relative;
-  width: min(92vw, 92dvh * 1.333);
+  width: min(78vw, calc(88dvh * 0.75), 780px);
   transform-style: preserve-3d;
 }
 

@@ -7,8 +7,8 @@
       "title": "Armor",
       "hero": true,
       "sourceFile": "614e0edf-c713-426c-9465-3c11919fd218.jpg",
-      "width": 640,
-      "height": 480,
+      "width": 480,
+      "height": 640,
       "paths": {
         "archival": "/artworks/armor/archival.jpg",
         "display": "/artworks/armor/display.webp",
@@ -25,32 +25,28 @@
           "role": "helmet",
           "polygon": [
             [
-              0.42,
-              0.08
-            ],
-            [
               0.62,
-              0.06
+              0.04
             ],
             [
-              0.78,
-              0.14
-            ],
-            [
-              0.86,
+              0.6799999999999999,
               0.28
             ],
             [
-              0.74,
-              0.42
-            ],
-            [
               0.52,
-              0.4
+              0.36
             ],
             [
-              0.4,
-              0.26
+              0.28,
+              0.3
+            ],
+            [
+              0.21999999999999997,
+              0.08
+            ],
+            [
+              0.42000000000000004,
+              0.02
             ]
           ],
           "mask": "/artworks/armor/mask-cowl.png"
@@ -61,28 +57,28 @@
           "role": "structure",
           "polygon": [
             [
-              0.28,
+              0.72,
               0.28
             ],
             [
-              0.48,
-              0.22
+              0.78,
+              0.48
             ],
             [
-              0.62,
-              0.32
+              0.6799999999999999,
+              0.62
             ],
             [
-              0.58,
+              0.42000000000000004,
               0.58
             ],
             [
-              0.38,
-              0.68
+              0.31999999999999995,
+              0.38
             ],
             [
-              0.24,
-              0.52
+              0.48,
+              0.24
             ]
           ],
           "mask": "/artworks/armor/mask-plates.png"
@@ -93,28 +89,32 @@
           "role": "threshold",
           "polygon": [
             [
-              0.04,
-              0.38
+              0.92,
+              0.42
             ],
             [
-              0.28,
-              0.32
+              0.94,
+              0.62
             ],
             [
-              0.36,
-              0.48
-            ],
-            [
-              0.3,
-              0.72
-            ],
-            [
-              0.08,
+              0.86,
               0.78
             ],
             [
-              0.02,
-              0.58
+              0.72,
+              0.86
+            ],
+            [
+              0.5800000000000001,
+              0.74
+            ],
+            [
+              0.6,
+              0.52
+            ],
+            [
+              0.74,
+              0.4
             ]
           ],
           "mask": "/artworks/armor/mask-forward.png"
@@ -126,8 +126,8 @@
       "title": "Facet",
       "hero": false,
       "sourceFile": "d39e45db-e775-420e-8bac-91e1526f6232.jpg",
-      "width": 640,
-      "height": 480,
+      "width": 480,
+      "height": 640,
       "paths": {
         "archival": "/artworks/facet/archival.jpg",
         "display": "/artworks/facet/display.webp",
@@ -143,8 +143,8 @@
       "title": "Signal",
       "hero": false,
       "sourceFile": "28d0ab8a-1f8a-41ce-adbb-4c53295da71e.jpg",
-      "width": 640,
-      "height": 480,
+      "width": 480,
+      "height": 640,
       "paths": {
         "archival": "/artworks/signal/archival.jpg",
         "display": "/artworks/signal/display.webp",
@@ -163,5 +163,5 @@
     "metal": "/audio/metal.wav",
     "air": "/audio/air.wav"
   },
-  "notes": "Source photographs are currently 640x480 chat-transcoded captures. Replace archival.jpg with original scans without changing filenames."
+  "notes": "Source photographs are camera captures with EXIF rotation baked so pixels are upright. Replace archival sources with original scans (same filenames) and re-run this script."
 }

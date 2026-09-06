@@ -8,7 +8,7 @@ import { centroid } from "@/semantic/hitTest";
 import { regionById } from "@/content/artworks";
 import { uvToLocal } from "@/experience/geometry";
 
-const encounterPos = new THREE.Vector3(0, 0.02, 2.55);
+const encounterPos = new THREE.Vector3(0, 0.02, 4.85);
 const encounterLook = new THREE.Vector3(0, 0, 0);
 const cowlCenter = uvToLocal(
   centroid(regionById.cowl.polygon).x,
@@ -44,16 +44,16 @@ export function CameraDirector() {
         centroid(regionById[regionId].polygon).x,
         centroid(regionById[regionId].polygon).y,
       );
-      desired.current.set(focus.x * 0.22, focus.y * 0.18, 2.15);
+      desired.current.set(focus.x * 0.22, focus.y * 0.18, 3.2);
       desiredLook.current.set(focus.x * 0.42, focus.y * 0.38, 0);
     } else if (phase === "touch") {
-      desired.current.set(cowlCenter.x * 0.4, cowlCenter.y * 0.35, 1.55);
+      desired.current.set(cowlCenter.x * 0.4, cowlCenter.y * 0.35, 2.4);
       desiredLook.current.copy(cowlCenter);
     } else if (phase === "transform") {
       const t = progress;
       desired.current.lerpVectors(
-        new THREE.Vector3(cowlCenter.x * 0.5, cowlCenter.y * 0.4, 1.4),
-        new THREE.Vector3(cowlCenter.x * 0.7, cowlCenter.y * 0.55 + 0.15, 0.55),
+        new THREE.Vector3(cowlCenter.x * 0.5, cowlCenter.y * 0.4, 2.2),
+        new THREE.Vector3(cowlCenter.x * 0.7, cowlCenter.y * 0.55 + 0.15, 0.7),
         t,
       );
       desiredLook.current.lerpVectors(

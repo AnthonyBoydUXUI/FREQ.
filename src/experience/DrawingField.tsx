@@ -94,7 +94,7 @@ export function DrawingField() {
         renderOrder={1}
         userData={{ freq: "drawing" }}
       >
-        <planeGeometry args={[DRAWING_WIDTH, DRAWING_HEIGHT, 96, 72]} />
+        <planeGeometry args={[DRAWING_WIDTH, DRAWING_HEIGHT, 72, 96]} />
         <primitive object={material} attach="material" />
       </mesh>
     </group>

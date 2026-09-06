@@ -24,7 +24,7 @@ export default function FreqCanvas() {
   return (
     <Canvas
       className="freq-canvas"
-      camera={{ position: [0, 0.02, 2.55], fov: 28, near: 0.05, far: 80 }}
+      camera={{ position: [0, 0.02, 4.85], fov: 28, near: 0.05, far: 80 }}
       dpr={profile.dpr}
       style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
       gl={{

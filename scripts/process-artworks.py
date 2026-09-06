@@ -17,7 +17,7 @@ import wave
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter, ImageOps
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "assets" / "source"
@@ -42,46 +42,56 @@ ARTWORKS = {
     },
 }
 
-# Authored UV polygons for the armor hero drawing (normalized 0-1, y from top).
+def rot90cw_uv(polygon: list[tuple[float, float]]) -> list[tuple[float, float]]:
+    """Map landscape UVs into EXIF orientation-6 space: (u, v) -> (1 - v, u)."""
+    return [(1.0 - v, u) for u, v in polygon]
+
+
+# Authored against the sideways camera pixels, then rotated with the drawing.
+# After EXIF-6 (90° CW), the landscape "forward" (rounded left form) is the helmet at the top.
+LANDSCAPE_FORWARD = [
+    (0.04, 0.38),
+    (0.28, 0.32),
+    (0.36, 0.48),
+    (0.30, 0.72),
+    (0.08, 0.78),
+    (0.02, 0.58),
+]
+LANDSCAPE_PLATES = [
+    (0.28, 0.28),
+    (0.48, 0.22),
+    (0.62, 0.32),
+    (0.58, 0.58),
+    (0.38, 0.68),
+    (0.24, 0.52),
+]
+LANDSCAPE_VAULT = [
+    (0.42, 0.08),
+    (0.62, 0.06),
+    (0.78, 0.14),
+    (0.86, 0.28),
+    (0.74, 0.42),
+    (0.52, 0.40),
+    (0.40, 0.26),
+]
+
 ARMOR_REGIONS = {
     "cowl": {
         "label": "Cowl",
         "role": "helmet",
-        "polygon": [
-            (0.42, 0.08),
-            (0.62, 0.06),
-            (0.78, 0.14),
-            (0.86, 0.28),
-            (0.74, 0.42),
-            (0.52, 0.40),
-            (0.40, 0.26),
-        ],
+        "polygon": rot90cw_uv(LANDSCAPE_FORWARD),
         "color": (214, 196, 164, 90),
     },
     "plates": {
         "label": "Plates",
         "role": "structure",
-        "polygon": [
-            (0.28, 0.28),
-            (0.48, 0.22),
-            (0.62, 0.32),
-            (0.58, 0.58),
-            (0.38, 0.68),
-            (0.24, 0.52),
-        ],
+        "polygon": rot90cw_uv(LANDSCAPE_PLATES),
         "color": (160, 150, 138, 90),
     },
     "forward": {
         "label": "Forward node",
         "role": "threshold",
-        "polygon": [
-            (0.04, 0.38),
-            (0.28, 0.32),
-            (0.36, 0.48),
-            (0.30, 0.72),
-            (0.08, 0.78),
-            (0.02, 0.58),
-        ],
+        "polygon": rot90cw_uv(LANDSCAPE_VAULT),
         "color": (120, 118, 112, 90),
     },
 }
@@ -91,6 +101,17 @@ def ensure_dirs() -> None:
     PUBLIC.mkdir(parents=True, exist_ok=True)
     GENERATED.mkdir(parents=True, exist_ok=True)
     (ROOT / "public" / "audio").mkdir(parents=True, exist_ok=True)
+
+
+def load_upright(path: Path) -> Image.Image:
+    """Honor camera EXIF so drawings are stored and displayed right-side up."""
+    with Image.open(path) as src:
+        orientation = src.getexif().get(274, 1) if src.getexif() else 1
+        transposed = ImageOps.exif_transpose(src)
+        image = (transposed or src).convert("RGB")
+    if orientation not in (0, 1, None):
+        image.save(path, quality=95, subsampling=0)
+    return image
 
 
 def luminance(arr: np.ndarray) -> np.ndarray:
@@ -111,7 +132,7 @@ def process_drawing(artwork_id: str, meta: dict) -> dict:
     out_dir = PUBLIC / artwork_id
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    original = Image.open(src_path).convert("RGB")
+    original = load_upright(src_path)
     original.save(out_dir / "archival.jpg", quality=95, subsampling=0)
     original.save(out_dir / "display.webp", quality=88, method=6)
 
@@ -309,7 +330,7 @@ def main() -> None:
         "heroArtworkId": "armor",
         "artworks": catalog,
         "audio": audio,
-        "notes": "Source photographs are currently 640x480 chat-transcoded captures. Replace archival.jpg with original scans without changing filenames.",
+        "notes": "Source photographs are camera captures with EXIF rotation baked so pixels are upright. Replace archival sources with original scans (same filenames) and re-run this script.",
     }
     (GENERATED / "catalog.json").write_text(json.dumps(payload, indent=2))
     (GENERATED / "armor-strokes.json").write_text(json.dumps(armor_strokes))
