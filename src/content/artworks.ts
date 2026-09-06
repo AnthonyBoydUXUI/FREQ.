@@ -63,15 +63,15 @@ const REGION_COPY: Record<
     meaning: "Overlapping plates and rivets. Structure that could become streets.",
     sonic: "Dense hatching. Dry graphite grain.",
     accessibleLabel:
-      "Armor plates. You can touch here too. The picture will still open.",
-    approach: "You can touch here too. The picture will still open.",
+      "Armor plates. Touch the picture. It will still open.",
+    approach: "Touch the picture. It will still open.",
   },
   forward: {
     meaning: "The blunt forward node. A threshold, not yet a door.",
     sonic: "Quieter paper. A held breath.",
     accessibleLabel:
-      "Front of the drawing. You can touch here too. The picture will still open.",
-    approach: "You can touch here too. The picture will still open.",
+      "Front of the drawing. Touch the picture. It will still open.",
+    approach: "Touch the picture. It will still open.",
   },
   visor: {
     meaning: "The dark band across the faceted head. A slit that can become a room.",
@@ -84,15 +84,15 @@ const REGION_COPY: Record<
     meaning: "Antenna-like horns. Structure above the visor, not a second door.",
     sonic: "Dry points of graphite. A scratch more than a tone.",
     accessibleLabel:
-      "Horns. You can touch here too. The picture will still open.",
-    approach: "You can touch here too. The picture will still open.",
+      "Horns. Touch the picture. It will still open.",
+    approach: "Touch the picture. It will still open.",
   },
   harness: {
     meaning: "Layered plates of the torso. A harness that could become a floor.",
     sonic: "Heavier hatching. Graphite laid in rows.",
     accessibleLabel:
-      "Harness. You can touch here too. The picture will still open.",
-    approach: "You can touch here too. The picture will still open.",
+      "Harness. Touch the picture. It will still open.",
+    approach: "Touch the picture. It will still open.",
   },
   crown: {
     meaning: "Jagged strokes at the top of the head. A crown that can become a vault.",
@@ -105,15 +105,15 @@ const REGION_COPY: Record<
     meaning: "The banded covering over the face. A mask that remains a mask.",
     sonic: "Horizontal hatching. A held vowel.",
     accessibleLabel:
-      "Mask. You can touch here too. The picture will still open.",
-    approach: "You can touch here too. The picture will still open.",
+      "Mask. Touch the picture. It will still open.",
+    approach: "Touch the picture. It will still open.",
   },
   strap: {
     meaning: "The strap and collar plates. A threshold along the neck.",
     sonic: "Quieter paper under the jaw.",
     accessibleLabel:
-      "Strap. You can touch here too. The picture will still open.",
-    approach: "You can touch here too. The picture will still open.",
+      "Strap. Touch the picture. It will still open.",
+    approach: "Touch the picture. It will still open.",
   },
 };
 
