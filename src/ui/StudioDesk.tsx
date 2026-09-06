@@ -105,13 +105,17 @@ export function StudioDesk() {
 
       <section>
         <h2>Collective memory</h2>
-        <ul className="studio-grid">
-          {Object.entries(data?.regions ?? {}).map(([id, count]) => (
-            <li key={id}>
-              {id} <em>{count}</em>
-            </li>
-          ))}
-        </ul>
+          {Object.entries(data?.regions ?? {}).length === 0 ? (
+            <p>Opening memory…</p>
+          ) : (
+            <ul className="studio-grid">
+              {Object.entries(data?.regions ?? {}).map(([id, count]) => (
+                <li key={id}>
+                  {id} <em>{count}</em>
+                </li>
+              ))}
+            </ul>
+          )}
       </section>
 
       <section>
@@ -127,13 +131,17 @@ export function StudioDesk() {
 
       <section>
         <h2>Today</h2>
-        <ul>
-          {(data?.daily ?? []).map((item) => (
-            <li key={item.artworkId}>
-              <strong>{item.artworkId}</strong> {item.caption} Seed {item.seed}.
-            </li>
-          ))}
-        </ul>
+          {(data?.daily ?? []).length === 0 ? (
+            <p>Opening today…</p>
+          ) : (
+            <ul>
+              {(data?.daily ?? []).map((item) => (
+                <li key={item.artworkId}>
+                  <strong>{item.artworkId}</strong> {item.caption} Seed {item.seed}.
+                </li>
+              ))}
+            </ul>
+          )}
       </section>
 
       <section>
@@ -142,32 +150,36 @@ export function StudioDesk() {
           Echoes are displaced samples of the original graphite. Publish is{" "}
           {featureFlags.generativePublish ? "on" : "off"}.
         </p>
-        <ul className="echo-list">
-          {(data?.echoes ?? []).map((echo) => (
-            <li key={echo.id}>
-              <p>
-                {echo.artworkId} {echo.day} — {echo.status} ({echo.strokes.length}{" "}
-                marks)
-              </p>
-              <button
-                type="button"
-                className="text-button"
-                disabled={busy === echo.id}
-                onClick={() => void setStatus(echo.id, "approve")}
-              >
-                Approve
-              </button>
-              <button
-                type="button"
-                className="text-button"
-                disabled={busy === echo.id}
-                onClick={() => void setStatus(echo.id, "hold")}
-              >
-                Hold
-              </button>
-            </li>
-          ))}
-        </ul>
+          {(data?.echoes ?? []).length === 0 ? (
+            <p>No drafts yet. Opening the desk will seed today’s echoes.</p>
+          ) : (
+            <ul className="echo-list">
+              {(data?.echoes ?? []).map((echo) => (
+                <li key={echo.id}>
+                  <p>
+                    {echo.artworkId} {echo.day} — {echo.status} ({echo.strokes.length}{" "}
+                    marks)
+                  </p>
+                  <button
+                    type="button"
+                    className="text-button"
+                    disabled={busy === echo.id}
+                    onClick={() => void setStatus(echo.id, "approve")}
+                  >
+                    Approve
+                  </button>
+                  <button
+                    type="button"
+                    className="text-button"
+                    disabled={busy === echo.id}
+                    onClick={() => void setStatus(echo.id, "hold")}
+                  >
+                    Hold
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
       </section>
     </main>
   );

@@ -1,7 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { artworkById, portalFor } from "@/content/artworks";
 import type { ArtworkId } from "@/engine/types";
 import { useEngine } from "@/engine/store";
@@ -35,21 +36,23 @@ export function FreqStage({ artworkId = "armor" }: { artworkId?: ArtworkId }) {
   const hovered = useEngine((s) => s.hoveredRegionId);
   const inside = useEngine((s) => s.pointer.inside);
   const currentId = useEngine((s) => s.artworkId);
-  const artwork = artworkById[currentId];
-  const portal = portalFor(currentId);
+  const router = useRouter();
+  const pathname = usePathname();
+  const artwork = artworkById[artworkId];
+  const portal = portalFor(artworkId);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setArtwork(artworkId);
     boot();
     report("first_visual");
   }, [artworkId, boot, setArtwork]);
 
   useEffect(() => {
+    if (currentId === artworkId) return;
     const expected = currentId === "armor" ? "/" : `/t/${currentId}`;
-    if (window.location.pathname !== expected) {
-      window.history.replaceState(null, "", expected);
-    }
-  }, [currentId]);
+    if (pathname === expected) return;
+    router.replace(expected);
+  }, [artworkId, currentId, pathname, router]);
 
   useEffect(() => {
     document.documentElement.dataset.phase = phase;
@@ -66,7 +69,7 @@ export function FreqStage({ artworkId = "armor" }: { artworkId?: ArtworkId }) {
       data-immersed={immersed ? "true" : "false"}
       data-intent={intent}
       data-inside={inside ? "true" : "false"}
-      data-artwork={currentId}
+      data-artwork={artworkId}
     >
       <h1 className="sr-only">FREQ.</h1>
       <p className="sr-only">
@@ -102,7 +105,7 @@ export function FreqStage({ artworkId = "armor" }: { artworkId?: ArtworkId }) {
         <EchoLayer />
         <SemanticHtmlLayer enabled />
       </div>
-      <RelatedMarks />
+      <RelatedMarks currentId={artworkId} />
       <InputHost target={stageEl} sheet={sheetEl} />
       <PhaseTicker />
       <FreqCursor />

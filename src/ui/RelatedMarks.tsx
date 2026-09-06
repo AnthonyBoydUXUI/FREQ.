@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { artworks } from "@/content/artworks";
+import type { ArtworkId } from "@/engine/types";
 import { useEngine } from "@/engine/store";
 import { isImmersed } from "@/engine/phases";
 
-export function RelatedMarks() {
+export function RelatedMarks({ currentId }: { currentId?: ArtworkId }) {
   const phase = useEngine((s) => s.phase);
-  const current = useEngine((s) => s.artworkId);
+  const storeId = useEngine((s) => s.artworkId);
+  const current = currentId ?? storeId;
   const hidden = isImmersed(phase) || phase === "return" || phase === "touch";
   const related = artworks.filter((artwork) => artwork.id !== current);
 
