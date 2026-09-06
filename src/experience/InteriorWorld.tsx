@@ -11,14 +11,19 @@ import { woundAmount } from "@/engine/phases";
 import {
   createUvMappedPlane,
   createUvPolygonGeometry,
+  planeSizeFromUv,
   unfoldedFragment,
   unfoldedVertex,
   uvToLocal,
 } from "@/experience/geometry";
 
-const NAVE_LENGTH = 16.5;
-const NAVE_WIDTH = 3.55;
-const NAVE_HEIGHT = 3.05;
+const SCALE = 2.55;
+
+const FLOOR_UV = { u0: 0.24, v0: 0.3, u1: 0.8, v1: 0.9 };
+const LEFT_UV = { u0: 0.0, v0: 0.02, u1: 0.36, v1: 0.6 };
+const RIGHT_UV = { u0: 0.64, v0: 0.08, u1: 1.0, v1: 0.82 };
+const VAULT_UV = { u0: 0.2, v0: 0.02, u1: 0.7, v1: 0.34 };
+const TAPE_UV = { u0: 0.02, v0: 0.82, u1: 0.98, v1: 1.0 };
 
 export function InteriorWorld() {
   const [map, depth, paper] = useTexture(
@@ -40,7 +45,7 @@ export function InteriorWorld() {
       uniforms: {
         uMap: { value: map },
         uDepth: { value: depth },
-        uWrinkle: { value: 0.22 },
+        uWrinkle: { value: 0.18 },
       },
       vertexShader: unfoldedVertex,
       fragmentShader: unfoldedFragment,
@@ -50,57 +55,31 @@ export function InteriorWorld() {
     return mat;
   }, [map, depth]);
 
+  const floorSize = planeSizeFromUv(FLOOR_UV, SCALE);
+  const leftSize = planeSizeFromUv(LEFT_UV, SCALE);
+  const rightSize = planeSizeFromUv(RIGHT_UV, SCALE);
+  const vaultSize = planeSizeFromUv(VAULT_UV, SCALE);
+  const tapeSize = planeSizeFromUv(TAPE_UV, SCALE);
+
   const floor = useMemo(
-    () =>
-      createUvMappedPlane(
-        NAVE_WIDTH,
-        NAVE_LENGTH,
-        { u0: 0.28, v0: 0.32, u1: 0.78, v1: 0.82 },
-        24,
-        32,
-        "near-to-far",
-      ),
-    [],
+    () => createUvMappedPlane(floorSize.width, floorSize.height, FLOOR_UV, 24, 32, "near-to-far"),
+    [floorSize.height, floorSize.width],
   );
   const leftWall = useMemo(
-    () =>
-      createUvMappedPlane(NAVE_LENGTH, NAVE_HEIGHT, {
-        u0: 0.0,
-        v0: 0.02,
-        u1: 0.22,
-        v1: 0.92,
-      }),
-    [],
+    () => createUvMappedPlane(leftSize.width, leftSize.height, LEFT_UV),
+    [leftSize.height, leftSize.width],
   );
   const rightWall = useMemo(
-    () =>
-      createUvMappedPlane(NAVE_LENGTH, NAVE_HEIGHT, {
-        u0: 0.78,
-        v0: 0.02,
-        u1: 1.0,
-        v1: 0.92,
-      }),
-    [],
+    () => createUvMappedPlane(rightSize.width, rightSize.height, RIGHT_UV),
+    [rightSize.height, rightSize.width],
   );
   const vault = useMemo(
-    () =>
-      createUvMappedPlane(NAVE_WIDTH, NAVE_LENGTH, {
-        u0: 0.22,
-        v0: 0.02,
-        u1: 0.68,
-        v1: 0.34,
-      }),
-    [],
+    () => createUvMappedPlane(vaultSize.width, vaultSize.height, VAULT_UV),
+    [vaultSize.height, vaultSize.width],
   );
-  const farPaper = useMemo(
-    () =>
-      createUvMappedPlane(NAVE_WIDTH * 1.08, NAVE_HEIGHT * 1.12, {
-        u0: 0.0,
-        v0: 0.78,
-        u1: 1.0,
-        v1: 1.0,
-      }),
-    [],
+  const farTape = useMemo(
+    () => createUvMappedPlane(tapeSize.width, tapeSize.height, TAPE_UV),
+    [tapeSize.height, tapeSize.width],
   );
   const originMark = useMemo(
     () => createUvPolygonGeometry(regionById.cowl.polygon),
@@ -117,12 +96,13 @@ export function InteriorWorld() {
     const count = Math.min(profile.strokes, graphiteStrokes.length);
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
+    const depth = floorSize.height;
     for (let i = 0; i < count; i += 1) {
       const stroke = graphiteStrokes[i];
       const origin = uvToLocal(stroke.x, stroke.y);
-      positions[i * 3] = origin.x * 1.9;
-      positions[i * 3 + 1] = 0.28 + stroke.d * 2.15 + (1 - stroke.y) * 0.25;
-      positions[i * 3 + 2] = -0.9 - stroke.y * NAVE_LENGTH;
+      positions[i * 3] = origin.x * SCALE * 0.92;
+      positions[i * 3 + 1] = 0.22 + stroke.d * 1.55;
+      positions[i * 3 + 2] = -0.55 - stroke.y * depth;
       const shade = 0.11 + (1 - stroke.d) * 0.22;
       colors[i * 3] = shade;
       colors[i * 3 + 1] = shade;
@@ -131,7 +111,7 @@ export function InteriorWorld() {
     geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
     geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
     return geo;
-  }, [profile.strokes]);
+  }, [floorSize.height, profile.strokes]);
 
   useFrame((_, delta) => {
     if (!group.current) return;
@@ -139,13 +119,15 @@ export function InteriorWorld() {
     group.current.visible = open > 0.04;
     unfolded.uniforms.uWrinkle.value = THREE.MathUtils.damp(
       unfolded.uniforms.uWrinkle.value as number,
-      0.16 + open * 0.12,
+      0.12 + open * 0.1,
       1.8,
       delta,
     );
   });
 
   const paperDepths = [0.045, 0.11, 0.19, 0.3];
+  const floorZ = -0.45 - floorSize.height / 2;
+  const midZ = floorZ;
 
   return (
     <group ref={group} visible={false}>
@@ -168,37 +150,37 @@ export function InteriorWorld() {
       <mesh
         geometry={floor}
         rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, 0, -NAVE_LENGTH / 2]}
+        position={[0, 0, floorZ]}
         material={unfolded}
       />
       <mesh
         geometry={leftWall}
-        rotation={[0, Math.PI / 2, 0]}
-        position={[-NAVE_WIDTH / 2, NAVE_HEIGHT / 2, -NAVE_LENGTH / 2]}
+        rotation={[0, 0.72, 0]}
+        position={[-floorSize.width * 0.42, leftSize.height / 2, midZ]}
         material={unfolded}
       />
       <mesh
         geometry={rightWall}
-        rotation={[0, -Math.PI / 2, 0]}
-        position={[NAVE_WIDTH / 2, NAVE_HEIGHT / 2, -NAVE_LENGTH / 2]}
+        rotation={[0, -0.68, 0]}
+        position={[floorSize.width * 0.42, rightSize.height / 2, midZ - 0.2]}
         material={unfolded}
       />
       <mesh
         geometry={vault}
-        rotation={[Math.PI / 2, 0, 0]}
-        position={[0, NAVE_HEIGHT, -NAVE_LENGTH / 2]}
+        rotation={[1.05, 0, 0]}
+        position={[0, Math.max(leftSize.height, rightSize.height) * 0.78, midZ]}
         material={unfolded}
       />
       <mesh
-        geometry={farPaper}
-        position={[0, NAVE_HEIGHT / 2, -NAVE_LENGTH + 0.2]}
+        geometry={farTape}
+        position={[0, tapeSize.height / 2 + 0.12, floorZ - floorSize.height / 2 + 0.15]}
         material={unfolded}
       />
 
       <mesh
         geometry={originMark}
-        position={[0, 1.15, -NAVE_LENGTH + 0.55]}
-        scale={[5.4, 5.4, 5.4]}
+        position={[0, 1.05, floorZ - floorSize.height / 2 + 0.55]}
+        scale={[SCALE, SCALE, SCALE]}
         onClick={(event) => {
           event.stopPropagation();
           requestReturn();

@@ -19,6 +19,16 @@ export function imageToThreeUv(u: number, vImage: number): readonly [number, num
   return [u, 1 - vImage];
 }
 
+export function planeSizeFromUv(
+  uvRect: ImageUvRect,
+  scale: number,
+): { width: number; height: number } {
+  return {
+    width: Math.abs(uvRect.u1 - uvRect.u0) * DRAWING_WIDTH * scale,
+    height: Math.abs(uvRect.v1 - uvRect.v0) * DRAWING_HEIGHT * scale,
+  };
+}
+
 export function createUvPolygonGeometry(polygon: readonly Vec2[]): THREE.BufferGeometry {
   const positions: number[] = [];
   const uvs: number[] = [];

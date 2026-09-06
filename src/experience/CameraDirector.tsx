@@ -58,35 +58,35 @@ export function CameraDirector() {
       );
       desiredLook.current.lerpVectors(
         cowlCenter,
-        new THREE.Vector3(0, 0.95, -7.5),
+        new THREE.Vector3(0, 0.95, -4.2),
         t,
       );
     } else if (phase === "enter") {
       desired.current.lerpVectors(
         new THREE.Vector3(cowlCenter.x * 0.06, 0.92, 0.08),
-        new THREE.Vector3(0, 1.08, -4.4),
+        new THREE.Vector3(0, 1.02, -2.35),
         progress,
       );
       desiredLook.current.lerpVectors(
-        new THREE.Vector3(0, 0.9, -4),
-        new THREE.Vector3(0, 1.05, -12),
+        new THREE.Vector3(0, 0.9, -3.2),
+        new THREE.Vector3(0, 0.95, -6.5),
         progress,
       );
     } else if (phase === "explore") {
       desired.current.set(
-        pointer.ndcX * 0.32,
-        1.08 + pointer.ndcY * 0.1,
-        -4.4 - rail * 10.5,
+        pointer.ndcX * 0.28,
+        1.02 + pointer.ndcY * 0.1,
+        -2.35 - rail * 2.6,
       );
-      desiredLook.current.set(pointer.ndcX * 0.55, 1.02, -13 - rail * 6);
+      desiredLook.current.set(pointer.ndcX * 0.45, 0.95, -6.8 - rail * 2.2);
     } else if (phase === "return") {
       desired.current.lerpVectors(
-        new THREE.Vector3(0, 1.08, -9),
+        new THREE.Vector3(0, 1.02, -4.2),
         encounterPos,
         progress,
       );
       desiredLook.current.lerpVectors(
-        new THREE.Vector3(0, 1.0, -14),
+        new THREE.Vector3(0, 0.95, -6.5),
         encounterLook,
         progress,
       );

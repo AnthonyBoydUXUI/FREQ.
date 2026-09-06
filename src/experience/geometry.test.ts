@@ -3,7 +3,9 @@ import {
   createUvMappedPlane,
   drawingFragment,
   drawingVertex,
+  planeSizeFromUv,
 } from "@/experience/geometry";
+import { DRAWING_HEIGHT, DRAWING_WIDTH } from "@/engine/types";
 
 describe("createUvMappedPlane", () => {
   it("maps image-space UVs onto the plane with v flipped for three.js", () => {
@@ -35,6 +37,15 @@ describe("createUvMappedPlane", () => {
     for (let i = 0; i < uv.count; i += 1) vs.push(uv.getY(i));
     expect(Math.min(...vs)).toBeCloseTo(0.2);
     expect(Math.max(...vs)).toBeCloseTo(0.7);
+  });
+});
+
+describe("planeSizeFromUv", () => {
+  it("keeps photograph proportions when a region becomes a surface", () => {
+    const size = planeSizeFromUv({ u0: 0, v0: 0, u1: 1, v1: 1 }, 2);
+    expect(size.width).toBeCloseTo(DRAWING_WIDTH * 2);
+    expect(size.height).toBeCloseTo(DRAWING_HEIGHT * 2);
+    expect(size.width / size.height).toBeCloseTo(DRAWING_WIDTH / DRAWING_HEIGHT);
   });
 });
 

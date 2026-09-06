@@ -76,12 +76,12 @@ export function SceneController() {
     state.scene.fog = state.scene.fog ?? new THREE.Fog("#e8e0d4", 18, 52);
     const fog = state.scene.fog as THREE.Fog;
     if (engine.phase === "explore" || engine.phase === "enter") {
-      fog.near = 6;
-      fog.far = 22;
+      fog.near = 3.5;
+      fog.far = 12;
       fog.color.set("#cfc4b4");
     } else if (engine.phase === "return" || engine.phase === "transform") {
-      fog.near = 8;
-      fog.far = 28;
+      fog.near = 5;
+      fog.far = 16;
       fog.color.set("#d9d0c3");
     } else {
       fog.near = 18;
