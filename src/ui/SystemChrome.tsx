@@ -14,7 +14,6 @@ export function SystemChrome() {
   const setCaptions = useEngine((s) => s.setCaptions);
   const unlockAudio = useEngine((s) => s.unlockAudio);
   const requestReturn = useEngine((s) => s.requestReturn);
-  const whisperVisible = useEngine((s) => s.whisperVisible);
   const webgl = useEngine((s) => s.webgl);
 
   return (
@@ -25,18 +24,12 @@ export function SystemChrome() {
         </p>
         <p className="sr-live" aria-live="polite">
           {phase === "explore"
-            ? "Inside the drawing. Move forward. The far mural returns you."
+            ? "Inside the drawing. Move forward. The far mark returns you."
             : hovered
               ? `${hovered} is responding.`
               : "The drawing is still."}
         </p>
       </div>
-
-      {whisperVisible ? (
-        <p className="whisper" role="note">
-          The drawing is the interface.
-        </p>
-      ) : null}
 
       <div className="chrome-right">
         {phase === "explore" || phase === "enter" ? (
@@ -53,33 +46,35 @@ export function SystemChrome() {
           }}
           aria-pressed={!muted}
         >
-          {muted ? "Sound off" : "Sound on"}
+          {muted ? "Sound" : "Sound on"}
         </button>
-        <label className="volume">
-          <span className="sr-only">Volume</span>
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.01}
-            value={volume}
-            onChange={(event) => {
-              unlockAudio();
-              setVolume(Number(event.target.value));
-            }}
-            aria-label="Volume"
-          />
-        </label>
+        {!muted ? (
+          <label className="volume">
+            <span className="sr-only">Volume</span>
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.01}
+              value={volume}
+              onChange={(event) => {
+                unlockAudio();
+                setVolume(Number(event.target.value));
+              }}
+              aria-label="Volume"
+            />
+          </label>
+        ) : null}
         <button
           type="button"
-          className="text-button"
+          className="text-button quiet-control"
           aria-pressed={captions}
           onClick={() => setCaptions(!captions)}
         >
           Captions
         </button>
-        <Link className="text-button" href="/journey">
-          Accessible journey
+        <Link className="text-button quiet-control" href="/journey">
+          Journey
         </Link>
         {webgl === false ? (
           <span className="quiet">Flat field</span>

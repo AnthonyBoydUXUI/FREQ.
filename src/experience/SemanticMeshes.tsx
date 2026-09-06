@@ -14,8 +14,6 @@ export function SemanticMeshes() {
   const rememberVisit = useEngine((s) => s.rememberVisit);
   const unlockAudio = useEngine((s) => s.unlockAudio);
   const phase = useEngine((s) => s.phase);
-  const hovered = useEngine((s) => s.hoveredRegionId);
-  const focused = useEngine((s) => s.focusedRegionId);
 
   const geometries = useMemo(
     () =>
@@ -27,46 +25,41 @@ export function SemanticMeshes() {
 
   return (
     <group>
-      {regions.map((region) => {
-        const active = hovered === region.id || focused === region.id;
-        const lift = active ? 0.018 : 0.004;
-        return (
-          <mesh
-            key={region.id}
-            geometry={geometries[region.id]}
-            position={[0, 0, lift]}
-            onPointerOver={(event) => {
-              event.stopPropagation();
-              if (typeof navigator !== "undefined" && "vibrate" in navigator) {
-                navigator.vibrate(8);
-              }
-              setHoveredRegion(region.id);
-            }}
-            onPointerOut={(event) => {
-              event.stopPropagation();
-              if (useEngine.getState().hoveredRegionId === region.id) {
-                setHoveredRegion(null);
-              }
-            }}
-            onClick={(event) => {
-              event.stopPropagation();
-              unlockAudio();
-              rememberVisit(region.id);
-              if (canSelectRegion(phase) || phase === "explore") {
-                selectRegion(region.id);
-              }
-            }}
-          >
-            <meshBasicMaterial
-              transparent
-              opacity={active ? 0.045 : 0.0}
-              color={region.role === "helmet" ? "#c9b79a" : "#8a847c"}
-              depthWrite={false}
-              side={THREE.DoubleSide}
-            />
-          </mesh>
-        );
-      })}
+      {regions.map((region) => (
+        <mesh
+          key={region.id}
+          geometry={geometries[region.id]}
+          position={[0, 0, 0.01]}
+          onPointerOver={(event) => {
+            event.stopPropagation();
+            if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+              navigator.vibrate(8);
+            }
+            setHoveredRegion(region.id);
+          }}
+          onPointerOut={(event) => {
+            event.stopPropagation();
+            if (useEngine.getState().hoveredRegionId === region.id) {
+              setHoveredRegion(null);
+            }
+          }}
+          onClick={(event) => {
+            event.stopPropagation();
+            unlockAudio();
+            rememberVisit(region.id);
+            if (canSelectRegion(phase) || phase === "explore") {
+              selectRegion(region.id);
+            }
+          }}
+        >
+          <meshBasicMaterial
+            transparent
+            opacity={0}
+            depthWrite={false}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      ))}
     </group>
   );
 }

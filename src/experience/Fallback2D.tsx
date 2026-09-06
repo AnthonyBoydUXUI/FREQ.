@@ -62,7 +62,7 @@ export function Fallback2D() {
         <div className="fallback-world">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={heroArtwork.paths.display} alt="" />
-          <p>Inside the cowl, the plates become a nave of paper and graphite.</p>
+          <p>Inside the cowl, the same paper continues. Graphite becomes space.</p>
           <button type="button" onClick={() => useEngine.getState().requestReturn()}>
             Return to the drawing
           </button>

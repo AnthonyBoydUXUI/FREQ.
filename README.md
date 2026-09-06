@@ -2,7 +2,7 @@
 
 A living spatial digital installation born from three original hand drawings.
 
-The drawing is the interface. The first public vertical slice opens one armored drawing, three invisible semantic regions, a helmet transformation into architecture, spatial sound, a return to the mark, and an accessible journey.
+The drawing is the interface. The first public vertical slice opens one armored drawing, three invisible semantic regions, a helmet transformation into architecture, spatial sound, a return to the mark, and an accessible journey. The drawings are the origin of the system, not content dropped into an engine.
 
 This is not a portfolio, a gallery, or a 3D demo.
 
@@ -45,7 +45,7 @@ Drawing (HTML poster, fast first visual)
   → WebGL 2.5D field (R3F) if capable
   → Invisible semantic regions
   → Cowl / helmet transformation
-  → Interior nave derived from the same marks
+  → Interior nave unfolded from the same photograph
   → Spatial stems
   → Collapse back into the drawing
 ```

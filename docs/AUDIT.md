@@ -85,8 +85,8 @@ Hobby Vercel should host this slice. Supabase, custom domains, and media workers
 
 ## S. Phased execution plan
 
-This PR is Phases 0–8 for one drawing, at vertical-slice depth. Remaining drawings, curator, AR/VR, and generative media wait on the quality gate.
+This PR is Phases 0–8 for one drawing, at vertical-slice depth. Remaining drawings, curator, AR/VR, and generative media wait on the quality gate. The drawings are the origin of the system, not content assembled into an engine.
 
 ## T. Exact first build
 
-Armor drawing + three invisible regions + pre-interaction response + cowl/helmet transformation + nave derived from the drawing + graphite DNA inside + spatial stems + return + desktop/mobile + reduced motion + accessible journey.
+One drawing, three invisible regions, one helmet transformation, one spatial world unfolded from that drawing, a return to the mark, desktop/mobile, reduced motion, accessible journey.

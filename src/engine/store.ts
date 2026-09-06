@@ -39,7 +39,6 @@ type EngineState = {
   captions: boolean;
   fps: number;
   seed: number;
-  whisperVisible: boolean;
   visitCounts: Record<RegionId, number>;
   rail: number;
   boot: () => void;
@@ -59,8 +58,6 @@ type EngineState = {
   setRail: (value: number) => void;
   tickSequence: (delta: number) => void;
   requestReturn: () => void;
-  dismissWhisper: () => void;
-  showWhisper: () => void;
   rememberVisit: (id: RegionId) => void;
 };
 
@@ -110,7 +107,6 @@ export const useEngine = create<EngineState>((set, get) => ({
   captions: false,
   fps: 60,
   seed: dailySeed(HERO_ARTWORK_ID),
-  whisperVisible: false,
   visitCounts: { cowl: 0, plates: 0, forward: 0 },
   rail: 0,
   boot: () => {
@@ -173,7 +169,6 @@ export const useEngine = create<EngineState>((set, get) => ({
       phase: "touch",
       phaseProgress: 0,
       transformation: targetTransformation("touch", 0),
-      whisperVisible: false,
     });
   },
   setQuality: (quality) => set({ quality }),
@@ -253,13 +248,6 @@ export const useEngine = create<EngineState>((set, get) => ({
         phaseProgress: 0,
         transformation: targetTransformation("return", 0),
       });
-    }
-  },
-  dismissWhisper: () => set({ whisperVisible: false }),
-  showWhisper: () => {
-    const { phase } = get();
-    if (phase === "encounter" || phase === "notice") {
-      set({ whisperVisible: true });
     }
   },
   rememberVisit: (id) => {

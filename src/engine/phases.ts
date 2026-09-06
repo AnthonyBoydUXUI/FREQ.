@@ -22,6 +22,15 @@ export function isReturning(phase: Phase): boolean {
   return phase === "return";
 }
 
+/** How open the paper wound is. The drawing stays; the mark becomes a hole. */
+export function woundAmount(phase: Phase, progress: number): number {
+  if (phase === "touch") return progress * 0.14;
+  if (phase === "transform") return Math.min(1, Math.max(0, (progress - 0.12) / 0.78));
+  if (phase === "enter" || phase === "explore") return 1;
+  if (phase === "return") return 1 - progress;
+  return 0;
+}
+
 export function targetTransformation(phase: Phase, progress: number): number {
   const base = TRANSFORMATION_FOR_PHASE[phase];
   if (phase === "transform") {

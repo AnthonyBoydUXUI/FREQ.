@@ -2,19 +2,57 @@
 
 Internal, version-controlled. New worlds are checked against this document.
 
-Version: 0.1 — armor / cowl nave
+Version: 0.2 — armor / cowl nave
+
+## Origin
+
+The three drawings are not content placed into an immersive system. They are the origin of the system. Every spatial, sonic, and interactive decision is a translation of a handmade mark.
+
+The strongest idea is the simplest: a person touches a mark on a hand-drawn image and slowly realizes there is an entire spatial world inside that mark.
+
+If a proposed feature does not serve that sentence, it does not ship.
+
+## First public experience
+
+Protect this version:
+
+1. One drawing
+2. Three invisible interaction regions
+3. One astonishing transformation
+4. One complete spatial world
+5. A return to the original drawing
+
+That is enough. Depth before breadth. Quiet at first, then unexpected depth. Less “look what the technology can do.” More “how was all of that already inside this drawing?”
+
+Do not add AR, VR, AI, extra territories, curator tools, or generative publish until this loop feels authored.
+
+## Analog imperfection
+
+The transition from analog into digital space is the identity. Protect it aggressively.
+
+These must survive into the immersive world:
+
+- wrinkles
+- graphite pressure
+- tape
+- cross-hatching
+- paper texture
+- unfinished marks
+
+Roughness is not a defect. Do not grade the photograph. Do not replace marks with polished CG, metal shaders, neon, or generic architecture. The interior is the drawing unfolded: UV strips of the same sheet, graphite in space, paper thickness at the wound. Not a gallery of the drawing. Not a sci-fi corridor wearing the drawing as wallpaper.
 
 ## Visual grammar
 
-- Source drawings remain handmade. Uneven pressure, hatching, folds, tape, smudges, and construction marks are material.
-- Palette is graphite, parchment, bone, warm gray, oxidized metal, soft black.
+- Source drawings remain handmade.
+- Palette is graphite, parchment, bone, warm gray, soft black.
 - No neon, no purple/blue AI gradients, no glassmorphism, no endless bloom, no cinematic loader.
+- System chrome stays secondary and almost quiet.
 
 ## Material grammar
 
-Paper, graphite, ink, metal, fabric, glass, stone, air, light, sound.
+Paper, graphite, ink, air, light, sound.
 
-This slice uses paper, graphite, oxidized metal, air, and light. The interior nave is the drawing at architectural scale, not a sci-fi corridor.
+Metal appears only as a sonic color during the helmet’s lift — not as a 3D material. The interior nave is unlit photograph at architectural scale, displaced by the drawing’s own depth.
 
 ## Sound grammar
 
@@ -29,15 +67,17 @@ No trailer hits. No looping “ambient music bed.”
 
 ## Motion grammar
 
-lift, separate, rotate, fold, expand, enter, collapse, reassemble.
+lift, separate, peel, unfold, enter, collapse, reassemble.
+
+The drawing does not recede or get swapped for a scene. The sheet stays. A wound opens in the mark. The camera enters that wound. Return is the reverse: the world collapses into the mark.
 
 Motion is slow and causal. If reduced motion is requested, crossfade instead of camera spectacle.
 
 ## Interaction grammar
 
-The artwork is the interface. No hotspot dots. No “click here.”
+The artwork is the interface. No hotspot dots. No hover tints. No “click here.” No instructional whisper.
 
-Signifiers: slight lift, line depth, shadow shift, graphite sound, focus ring for keyboard.
+Signifiers: graphite separating from paper, a slight lift, sound, a focus ring for keyboard.
 
 Three regions in the armor drawing:
 
@@ -47,7 +87,7 @@ Three regions in the armor drawing:
 
 ## Artwork preservation
 
-Do not over-clean. Do not replace marks with generic 3D robots. Even in the nave, the original drawing remains as mural, wall texture, and suspended graphite.
+Do not over-clean. Do not replace marks with generic 3D robots. Even in the nave, the visitor is still looking at the original sheet.
 
 ## Transformation logic
 
@@ -57,7 +97,7 @@ Encounter begins around 3–10%. Return is part of the artwork.
 
 ## Accessibility
 
-System UI is secondary and must work. Journey mode is first-class. Captions describe sonic architecture. Reduced motion keeps meaning.
+System UI is secondary and must work. Journey mode is first-class. Captions describe sonic architecture. Reduced motion keeps meaning. Mute, volume, and captions remain functional even when visually quiet.
 
 ## Performance
 
@@ -65,6 +105,10 @@ Preserve, in order: source artwork, composition, interaction, transformation con
 
 Never keep bloom at the expense of the drawing.
 
+## Feature accumulation
+
+FREQ. does not need to prove everything in version one. Guard against adding systems that make the work feel assembled. If the first public experience is simply the five beats above, that can already be enough to make people remember it.
+
 ## Prohibited clichés
 
-Generic holograms, cyberpunk cities, neon grids, NFT galleries, metaverse lobbies, floating HUD panels, excessive particles, AI-concept-art polish.
+Generic holograms, cyberpunk cities, neon grids, NFT galleries, metaverse lobbies, floating HUD panels, monument rows of the same image, metal towers, excessive particles, AI-concept-art polish, color grades that “improve” the scan.

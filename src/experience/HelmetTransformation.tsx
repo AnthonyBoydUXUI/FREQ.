@@ -42,54 +42,73 @@ export function HelmetTransformation() {
 
     const reverse = phase === "return" ? 1 - progress : 1;
     const touch = phase === "touch" ? progress : phase === "encounter" ? 0 : 1;
-    const transform = phase === "transform" ? progress : phase === "touch" ? 0 : reverse;
+    const transform =
+      phase === "transform" ? progress : phase === "touch" ? 0 : reverse;
     const opened =
-      phase === "enter" || phase === "explore" ? 1 : phase === "transform" ? Math.max(0, (progress - 0.55) / 0.45) : 0;
+      phase === "enter" || phase === "explore"
+        ? 1
+        : phase === "transform"
+          ? Math.max(0, (progress - 0.5) / 0.5)
+          : 0;
 
-    const lift = reducedMotion ? transform * 0.12 : 0.04 + touch * 0.08 + transform * 0.42;
-    const rotY = reducedMotion ? 0 : transform * 0.32;
-    const rotX = reducedMotion ? 0 : transform * -0.12;
+    const lift = reducedMotion
+      ? transform * 0.07
+      : 0.016 + touch * 0.04 + transform * 0.26;
+    const peel = reducedMotion ? 0 : transform * -0.05;
 
     group.current.visible = transforming;
-    group.current.position.z = THREE.MathUtils.damp(group.current.position.z, lift, 3, delta);
-    group.current.rotation.y = THREE.MathUtils.damp(group.current.rotation.y, rotY, 2.4, delta);
-    group.current.rotation.x = THREE.MathUtils.damp(group.current.rotation.x, rotX, 2.4, delta);
+    group.current.position.z = THREE.MathUtils.damp(
+      group.current.position.z,
+      lift,
+      2.8,
+      delta,
+    );
+    group.current.rotation.x = THREE.MathUtils.damp(
+      group.current.rotation.x,
+      peel,
+      2.2,
+      delta,
+    );
+    group.current.rotation.y = THREE.MathUtils.damp(
+      group.current.rotation.y,
+      0,
+      2.2,
+      delta,
+    );
 
     const showPanels = opened > 0.02 || (phase === "return" && progress < 0.55);
     panels.current.visible = showPanels;
-    group.current.children[0].visible = !showPanels || opened < 0.35;
+    group.current.children[0].visible = !showPanels || opened < 0.28;
 
     panels.current.children.forEach((child, index) => {
       const dir = index % 2 === 0 ? 1 : -1;
-      const yaw = opened * dir * (0.38 + index * 0.08);
-      const pitch = opened * -0.22;
-      const z = opened * (0.18 + index * 0.05);
-      child.rotation.y = THREE.MathUtils.damp(child.rotation.y, yaw, 2.2, delta);
-      child.rotation.x = THREE.MathUtils.damp(child.rotation.x, pitch, 2.2, delta);
-      child.position.z = THREE.MathUtils.damp(child.position.z, z, 2.2, delta);
+      const yaw = opened * dir * (0.42 + index * 0.07);
+      const pitch = opened * -0.16;
+      const z = opened * (0.06 + index * 0.028);
+      child.rotation.y = THREE.MathUtils.damp(child.rotation.y, yaw, 2.1, delta);
+      child.rotation.x = THREE.MathUtils.damp(child.rotation.x, pitch, 2.1, delta);
+      child.position.z = THREE.MathUtils.damp(child.position.z, z, 2.1, delta);
     });
   });
 
   return (
     <group ref={group} visible={false}>
       <mesh geometry={cowlGeometry} renderOrder={3}>
-        <meshStandardMaterial
+        <meshBasicMaterial
           map={map}
           alphaMap={mask}
           transparent
-          roughness={0.88}
-          metalness={0.04}
           side={THREE.DoubleSide}
+          toneMapped={false}
         />
       </mesh>
       <group ref={panels}>
         {panelGeometries.map((geometry, index) => (
           <mesh key={cowlPanels[index].id} geometry={geometry} renderOrder={4}>
-            <meshStandardMaterial
+            <meshBasicMaterial
               map={map}
-              roughness={0.86}
-              metalness={0.05}
               side={THREE.DoubleSide}
+              toneMapped={false}
             />
           </mesh>
         ))}

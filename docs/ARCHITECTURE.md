@@ -19,7 +19,7 @@ FREQ. is a Next.js App Router application with a client-side experience engine.
 
 `boot → encounter → notice → approach → response → touch → transform → enter → explore → return`
 
-Only the cowl region advances into a world. Other regions respond and stop.
+The interior nave is the same photograph unfolded into space. A wound in the cowl is the entrance; the original sheet remains.
 
 ## Progressive enhancement
 

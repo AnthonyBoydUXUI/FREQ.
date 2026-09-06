@@ -4,21 +4,27 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
-import { heroArtwork } from "@/content/artworks";
+import { heroArtwork, regionById } from "@/content/artworks";
 import { DRAWING_HEIGHT, DRAWING_WIDTH } from "@/engine/types";
 import { useEngine } from "@/engine/store";
-import { isImmersed } from "@/engine/phases";
 import { drawingFragment, drawingVertex } from "@/experience/geometry";
 import { profileFor } from "@/quality/detect";
 import { seedUnit } from "@/engine/dailySeed";
+import { woundAmount } from "@/engine/phases";
 
 export function DrawingField() {
-  const [map, depth, paper] = useTexture(
-    [heroArtwork.paths.display, heroArtwork.paths.depth, heroArtwork.paths.paper],
+  const [map, depth, paper, mask] = useTexture(
+    [
+      heroArtwork.paths.display,
+      heroArtwork.paths.depth,
+      heroArtwork.paths.paper,
+      regionById.cowl.mask,
+    ],
     (loaded) => {
       loaded[0].colorSpace = THREE.SRGBColorSpace;
       loaded[1].colorSpace = THREE.NoColorSpace;
       loaded[2].colorSpace = THREE.SRGBColorSpace;
+      loaded[3].colorSpace = THREE.NoColorSpace;
     },
   );
   const material = useMemo(() => {
@@ -26,23 +32,25 @@ export function DrawingField() {
       uniforms: {
         uMap: { value: map },
         uDepth: { value: depth },
+        uPaper: { value: paper },
+        uMask: { value: mask },
         uPointer: { value: new THREE.Vector2(0.5, 0.5) },
         uHover: { value: 0 },
         uTime: { value: 0 },
         uBreath: { value: 1 },
         uLift: { value: 0.35 },
-        uRecede: { value: 0 },
-        uFocus: { value: 0 },
-        uSepia: { value: 0.22 },
+        uWound: { value: 0 },
       },
       vertexShader: drawingVertex,
       fragmentShader: drawingFragment,
       toneMapped: false,
+      side: THREE.DoubleSide,
     });
     return mat;
-  }, [map, depth]);
+  }, [map, depth, paper, mask]);
 
   const phase = useEngine((s) => s.phase);
+  const phaseProgress = useEngine((s) => s.phaseProgress);
   const pointer = useEngine((s) => s.pointer);
   const hovered = useEngine((s) => s.hoveredRegionId);
   const transformation = useEngine((s) => s.transformation);
@@ -57,43 +65,51 @@ export function DrawingField() {
     uniforms.uPointer.value.set(pointer.u, 1 - pointer.v);
     uniforms.uHover.value = THREE.MathUtils.damp(
       uniforms.uHover.value as number,
-      hovered || pointer.inside ? 1 : 0.15,
+      hovered || pointer.inside ? 1 : 0,
       4,
       delta,
     );
     const profile = profileFor(quality);
-    uniforms.uBreath.value = reducedMotion ? 0 : profile.displacement * (0.7 + seedUnit(seed, 1) * 0.4);
-    uniforms.uLift.value = 0.28 + transformation * 0.9;
-    uniforms.uRecede.value = isImmersed(phase) ? 1 : transformation * 0.4;
-    uniforms.uFocus.value = phase === "approach" || phase === "response" ? 0.4 : 0.1;
-    uniforms.uSepia.value = 0.18 + seedUnit(seed, 2) * 0.08;
+    uniforms.uBreath.value = reducedMotion
+      ? 0
+      : profile.displacement * (0.55 + seedUnit(seed, 1) * 0.35);
+    uniforms.uLift.value = 0.72 + transformation * 0.55;
+    uniforms.uWound.value = THREE.MathUtils.damp(
+      uniforms.uWound.value as number,
+      woundAmount(phase, phaseProgress),
+      reducedMotion ? 8 : 2.4,
+      delta,
+    );
 
     if (group.current) {
-      const tiltX = reducedMotion ? 0 : pointer.ndcY * -0.045;
-      const tiltY = reducedMotion ? 0 : pointer.ndcX * 0.05;
-      const extra = isImmersed(phase) ? -0.55 * transformation : 0;
-      group.current.rotation.x = THREE.MathUtils.damp(group.current.rotation.x, tiltX + extra, 3, delta);
-      group.current.rotation.y = THREE.MathUtils.damp(group.current.rotation.y, tiltY, 3, delta);
-      const recedeZ = isImmersed(phase) ? -1.8 * transformation : 0;
-      group.current.position.z = THREE.MathUtils.damp(group.current.position.z, recedeZ, 2.4, delta);
+      const still =
+        phase === "encounter" || phase === "notice" || phase === "boot";
+      const tiltX = reducedMotion || !still ? 0 : pointer.ndcY * -0.022;
+      const tiltY = reducedMotion || !still ? 0 : pointer.ndcX * 0.026;
+      group.current.rotation.x = THREE.MathUtils.damp(
+        group.current.rotation.x,
+        tiltX,
+        3,
+        delta,
+      );
+      group.current.rotation.y = THREE.MathUtils.damp(
+        group.current.rotation.y,
+        tiltY,
+        3,
+        delta,
+      );
+      group.current.position.z = THREE.MathUtils.damp(
+        group.current.position.z,
+        0,
+        2.8,
+        delta,
+      );
     }
   });
 
   return (
     <group ref={group}>
-      <mesh position={[0, 0, -0.035]} receiveShadow>
-        <planeGeometry args={[DRAWING_WIDTH * 1.06, DRAWING_HEIGHT * 1.08, 1, 1]} />
-        <meshStandardMaterial
-          map={paper}
-          roughness={0.96}
-          metalness={0}
-          color="#e6ddd0"
-        />
-      </mesh>
-      <mesh
-        renderOrder={1}
-        userData={{ freq: "drawing" }}
-      >
+      <mesh renderOrder={1} userData={{ freq: "drawing" }}>
         <planeGeometry args={[DRAWING_WIDTH, DRAWING_HEIGHT, 72, 96]} />
         <primitive object={material} attach="material" />
       </mesh>

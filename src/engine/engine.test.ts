@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { dailySeed, seedUnit } from "@/engine/dailySeed";
-import { targetTransformation } from "@/engine/phases";
+import { targetTransformation, woundAmount } from "@/engine/phases";
 
 describe("dailySeed", () => {
   it("is deterministic for the same artwork and date", () => {
@@ -23,5 +23,21 @@ describe("targetTransformation", () => {
 
   it("collapses on return", () => {
     expect(targetTransformation("return", 1)).toBeLessThan(0.1);
+  });
+});
+
+describe("woundAmount", () => {
+  it("keeps the sheet closed at encounter", () => {
+    expect(woundAmount("encounter", 0)).toBe(0);
+  });
+
+  it("opens fully once inside", () => {
+    expect(woundAmount("explore", 1)).toBe(1);
+    expect(woundAmount("enter", 0.4)).toBe(1);
+  });
+
+  it("closes as the world returns to the mark", () => {
+    expect(woundAmount("return", 0)).toBe(1);
+    expect(woundAmount("return", 1)).toBe(0);
   });
 });

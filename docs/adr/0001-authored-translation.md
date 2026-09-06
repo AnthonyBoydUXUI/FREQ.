@@ -6,7 +6,7 @@ The armor drawing is never replaced by a stock helmet or robot model. Depth, pan
 
 ## Why
 
-The thesis is: a hand-drawn line already contains a world. A generic GLB would break recognizability and authorship.
+The thesis is: a hand-drawn line already contains a world. A generic GLB would break recognizability and authorship. The analog sheet — wrinkles, graphite, tape, hatching, unfinished marks — must survive the translation.
 
 ## Consequences
 

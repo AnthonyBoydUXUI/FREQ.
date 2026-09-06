@@ -11,6 +11,30 @@ import { CameraDirector } from "@/experience/CameraDirector";
 import { SceneController } from "@/experience/SceneController";
 import { useEngine } from "@/engine/store";
 import { profileFor } from "@/quality/detect";
+import { isImmersed } from "@/engine/phases";
+
+function SceneLights() {
+  const phase = useEngine((s) => s.phase);
+  const inside = isImmersed(phase) || phase === "return";
+  return (
+    <>
+      <ambientLight intensity={inside ? 0.32 : 0.44} color="#e8e0d4" />
+      <hemisphereLight args={["#f0e8dc", "#2a2723", inside ? 0.32 : 0.52]} />
+      <directionalLight
+        position={[-2.4, 3.2, 4.2]}
+        intensity={inside ? 0.28 : 0.72}
+        color="#f3ece1"
+      />
+      {inside ? (
+        <directionalLight
+          position={[0, 0.85, 3.4]}
+          intensity={0.4}
+          color="#f3eee6"
+        />
+      ) : null}
+    </>
+  );
+}
 
 export default function FreqCanvas() {
   const quality = useEngine((s) => s.quality);
@@ -41,13 +65,7 @@ export default function FreqCanvas() {
         if (engine.phase === "explore") engine.requestReturn();
       }}
     >
-      <ambientLight intensity={0.42} color="#e8e0d4" />
-      <hemisphereLight args={["#f0e8dc", "#2a2723", 0.55]} />
-      <directionalLight
-        position={[-2.4, 3.2, 4.2]}
-        intensity={0.85}
-        color="#f3ece1"
-      />
+      <SceneLights />
       <Suspense fallback={null}>
         <DrawingField />
         <SemanticMeshes />

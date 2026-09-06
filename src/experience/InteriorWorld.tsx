@@ -4,29 +4,113 @@ import { useMemo, useRef } from "react";
 import { useTexture } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { cowlPanels, graphiteStrokes, heroArtwork, regionById } from "@/content/artworks";
+import { graphiteStrokes, heroArtwork, regionById } from "@/content/artworks";
 import { useEngine } from "@/engine/store";
 import { profileFor } from "@/quality/detect";
-import { isImmersed } from "@/engine/phases";
-import { createUvPolygonGeometry, uvToLocal } from "@/experience/geometry";
+import { woundAmount } from "@/engine/phases";
+import {
+  createUvMappedPlane,
+  createUvPolygonGeometry,
+  unfoldedFragment,
+  unfoldedVertex,
+  uvToLocal,
+} from "@/experience/geometry";
+
+const NAVE_LENGTH = 16.5;
+const NAVE_WIDTH = 3.55;
+const NAVE_HEIGHT = 3.05;
 
 export function InteriorWorld() {
-  const map = useTexture(heroArtwork.paths.display);
-  const paper = useTexture(heroArtwork.paths.paper);
-  const linework = useTexture(heroArtwork.paths.linework);
+  const [map, depth, paper] = useTexture(
+    [heroArtwork.paths.display, heroArtwork.paths.depth, heroArtwork.paths.paper],
+    (loaded) => {
+      loaded[0].colorSpace = THREE.SRGBColorSpace;
+      loaded[1].colorSpace = THREE.NoColorSpace;
+      loaded[2].colorSpace = THREE.SRGBColorSpace;
+    },
+  );
   const phase = useEngine((s) => s.phase);
+  const phaseProgress = useEngine((s) => s.phaseProgress);
   const quality = useEngine((s) => s.quality);
   const group = useRef<THREE.Group>(null);
   const requestReturn = useEngine((s) => s.requestReturn);
 
-  const panelGeometries = useMemo(
-    () => cowlPanels.map((panel) => createUvPolygonGeometry(panel.uv)),
+  const unfolded = useMemo(() => {
+    const mat = new THREE.ShaderMaterial({
+      uniforms: {
+        uMap: { value: map },
+        uDepth: { value: depth },
+        uWrinkle: { value: 0.22 },
+      },
+      vertexShader: unfoldedVertex,
+      fragmentShader: unfoldedFragment,
+      toneMapped: false,
+      side: THREE.DoubleSide,
+    });
+    return mat;
+  }, [map, depth]);
+
+  const floor = useMemo(
+    () =>
+      createUvMappedPlane(
+        NAVE_WIDTH,
+        NAVE_LENGTH,
+        { u0: 0.28, v0: 0.32, u1: 0.78, v1: 0.82 },
+        24,
+        32,
+        "near-to-far",
+      ),
     [],
   );
-  const cowlMonument = useMemo(
+  const leftWall = useMemo(
+    () =>
+      createUvMappedPlane(NAVE_LENGTH, NAVE_HEIGHT, {
+        u0: 0.0,
+        v0: 0.02,
+        u1: 0.22,
+        v1: 0.92,
+      }),
+    [],
+  );
+  const rightWall = useMemo(
+    () =>
+      createUvMappedPlane(NAVE_LENGTH, NAVE_HEIGHT, {
+        u0: 0.78,
+        v0: 0.02,
+        u1: 1.0,
+        v1: 0.92,
+      }),
+    [],
+  );
+  const vault = useMemo(
+    () =>
+      createUvMappedPlane(NAVE_WIDTH, NAVE_LENGTH, {
+        u0: 0.22,
+        v0: 0.02,
+        u1: 0.68,
+        v1: 0.34,
+      }),
+    [],
+  );
+  const farPaper = useMemo(
+    () =>
+      createUvMappedPlane(NAVE_WIDTH * 1.08, NAVE_HEIGHT * 1.12, {
+        u0: 0.0,
+        v0: 0.78,
+        u1: 1.0,
+        v1: 1.0,
+      }),
+    [],
+  );
+  const originMark = useMemo(
     () => createUvPolygonGeometry(regionById.cowl.polygon),
     [],
   );
+  const woundRing = useMemo(
+    () => createUvPolygonGeometry(regionById.cowl.polygon),
+    [],
+  );
+
   const profile = profileFor(quality);
   const points = useMemo(() => {
     const geo = new THREE.BufferGeometry();
@@ -36,13 +120,13 @@ export function InteriorWorld() {
     for (let i = 0; i < count; i += 1) {
       const stroke = graphiteStrokes[i];
       const origin = uvToLocal(stroke.x, stroke.y);
-      positions[i * 3] = origin.x * 3.4;
-      positions[i * 3 + 1] = 0.55 + stroke.d * 2.6;
-      positions[i * 3 + 2] = -4.2 - stroke.y * 14.5;
-      const shade = 0.2 + stroke.d * 0.32;
+      positions[i * 3] = origin.x * 1.9;
+      positions[i * 3 + 1] = 0.28 + stroke.d * 2.15 + (1 - stroke.y) * 0.25;
+      positions[i * 3 + 2] = -0.9 - stroke.y * NAVE_LENGTH;
+      const shade = 0.11 + (1 - stroke.d) * 0.22;
       colors[i * 3] = shade;
-      colors[i * 3 + 1] = shade * 0.96;
-      colors[i * 3 + 2] = shade * 0.88;
+      colors[i * 3 + 1] = shade;
+      colors[i * 3 + 2] = shade * 0.96;
     }
     geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
     geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
@@ -51,89 +135,89 @@ export function InteriorWorld() {
 
   useFrame((_, delta) => {
     if (!group.current) return;
-    const visible = isImmersed(phase) || phase === "return";
-    const target = visible ? 1 : 0;
-    const current = (group.current.userData.opacity as number | undefined) ?? 0;
-    const next = THREE.MathUtils.damp(current, target, 1.8, delta);
-    group.current.userData.opacity = next;
-    group.current.visible = next > 0.02;
-    group.current.traverse((child) => {
-      const mesh = child as THREE.Mesh;
-      const material = mesh.material;
-      if (material && !Array.isArray(material) && "opacity" in material) {
-        const mat = material as THREE.MeshStandardMaterial;
-        mat.transparent = true;
-        mat.opacity = next;
-      }
-    });
+    const open = woundAmount(phase, phaseProgress);
+    group.current.visible = open > 0.04;
+    unfolded.uniforms.uWrinkle.value = THREE.MathUtils.damp(
+      unfolded.uniforms.uWrinkle.value as number,
+      0.16 + open * 0.12,
+      1.8,
+      delta,
+    );
   });
+
+  const paperDepths = [0.045, 0.11, 0.19, 0.3];
 
   return (
     <group ref={group} visible={false}>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, -10]} receiveShadow>
-        <planeGeometry args={[18, 28]} />
-        <meshStandardMaterial map={paper} roughness={0.95} metalness={0} color="#d9d0c3" />
-      </mesh>
-      <mesh position={[-3.15, 1.7, -10]} rotation={[0, Math.PI / 2.55, 0]}>
-        <planeGeometry args={[22, 5.4]} />
-        <meshStandardMaterial map={map} roughness={0.9} metalness={0} />
-      </mesh>
-      <mesh position={[3.15, 1.7, -10]} rotation={[0, -Math.PI / 2.55, 0]}>
-        <planeGeometry args={[22, 5.4]} />
-        <meshStandardMaterial map={linework} roughness={0.92} metalness={0} color="#cfc6b8" />
-      </mesh>
-      <mesh position={[0, 4.15, -10]} rotation={[Math.PI / 2.35, 0, 0]}>
-        <planeGeometry args={[10, 24]} />
-        <meshStandardMaterial map={map} roughness={0.93} metalness={0} color="#b7aea1" />
-      </mesh>
-
-      {panelGeometries.map((geometry, index) => (
+      {paperDepths.map((z) => (
         <mesh
-          key={`monument-${cowlPanels[index].id}`}
-          geometry={geometry}
-          position={[
-            (index % 2 === 0 ? -1.15 : 1.15),
-            1.35,
-            -5.2 - index * 2.15,
-          ]}
-          rotation={[0, index % 2 === 0 ? 0.55 : -0.55, 0]}
-          scale={[6.4, 6.4, 6.4]}
+          key={`wound-${z}`}
+          geometry={woundRing}
+          position={[0, 0, -z]}
+          renderOrder={2}
         >
-          <meshStandardMaterial
-            map={map}
-            roughness={0.86}
-            metalness={0.05}
+          <meshBasicMaterial
+            map={paper}
+            color="#d8cfc2"
             side={THREE.DoubleSide}
+            toneMapped={false}
           />
         </mesh>
       ))}
 
-      {[0, 1, 2, 3, 4].map((i) => (
-        <mesh key={`tower-${i}`} position={[-2.15 + (i % 2) * 4.3, 1.05, -5 - i * 2.55]}>
-          <boxGeometry args={[0.11, 2.15, 0.11]} />
-          <meshStandardMaterial color="#2c2a27" roughness={0.8} metalness={0.12} />
-        </mesh>
-      ))}
+      <mesh
+        geometry={floor}
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, 0, -NAVE_LENGTH / 2]}
+        material={unfolded}
+      />
+      <mesh
+        geometry={leftWall}
+        rotation={[0, Math.PI / 2, 0]}
+        position={[-NAVE_WIDTH / 2, NAVE_HEIGHT / 2, -NAVE_LENGTH / 2]}
+        material={unfolded}
+      />
+      <mesh
+        geometry={rightWall}
+        rotation={[0, -Math.PI / 2, 0]}
+        position={[NAVE_WIDTH / 2, NAVE_HEIGHT / 2, -NAVE_LENGTH / 2]}
+        material={unfolded}
+      />
+      <mesh
+        geometry={vault}
+        rotation={[Math.PI / 2, 0, 0]}
+        position={[0, NAVE_HEIGHT, -NAVE_LENGTH / 2]}
+        material={unfolded}
+      />
+      <mesh
+        geometry={farPaper}
+        position={[0, NAVE_HEIGHT / 2, -NAVE_LENGTH + 0.2]}
+        material={unfolded}
+      />
 
       <mesh
-        geometry={cowlMonument}
-        position={[0, 1.7, -19.2]}
-        scale={[8.2, 8.2, 8.2]}
+        geometry={originMark}
+        position={[0, 1.15, -NAVE_LENGTH + 0.55]}
+        scale={[5.4, 5.4, 5.4]}
         onClick={(event) => {
           event.stopPropagation();
           requestReturn();
         }}
       >
-        <meshStandardMaterial map={map} roughness={0.94} metalness={0} side={THREE.DoubleSide} />
+        <meshBasicMaterial
+          map={map}
+          side={THREE.DoubleSide}
+          toneMapped={false}
+        />
       </mesh>
 
       {profile.particles ? (
         <points geometry={points}>
           <pointsMaterial
-            size={0.032}
+            size={0.02}
             vertexColors
             transparent
-            opacity={0.7}
+            opacity={0.78}
             sizeAttenuation
             depthWrite={false}
           />

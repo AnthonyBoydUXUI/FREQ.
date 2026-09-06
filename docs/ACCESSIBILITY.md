@@ -6,7 +6,8 @@ Target: WCAG 2.2 AA for system UI, journey, and the HTML document around the fie
 - `h1` present (visually hidden on the installation)
 - Region buttons with specific labels
 - Visible focus
-- Mute, volume, captions
+- Mute, volume (when sound is on), captions
+- Skip link and a quiet Journey control to `/journey`
 - `prefers-reduced-motion` shortens the helmet sequence
 - If WebGL fails, the drawing and regions remain usable
 - No flashing, no forced autoplay

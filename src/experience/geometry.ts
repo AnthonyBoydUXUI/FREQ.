@@ -2,10 +2,21 @@ import * as THREE from "three";
 import { DRAWING_HEIGHT, DRAWING_WIDTH } from "@/engine/types";
 import type { Vec2 } from "@/engine/types";
 
+export type ImageUvRect = {
+  u0: number;
+  v0: number;
+  u1: number;
+  v1: number;
+};
+
 export function uvToLocal(u: number, vImage: number): THREE.Vector3 {
   const x = (u - 0.5) * DRAWING_WIDTH;
   const y = (0.5 - vImage) * DRAWING_HEIGHT;
   return new THREE.Vector3(x, y, 0);
+}
+
+export function imageToThreeUv(u: number, vImage: number): readonly [number, number] {
+  return [u, 1 - vImage];
 }
 
 export function createUvPolygonGeometry(polygon: readonly Vec2[]): THREE.BufferGeometry {
@@ -37,6 +48,31 @@ export function createUvPolygonGeometry(polygon: readonly Vec2[]): THREE.BufferG
   return geometry;
 }
 
+/** Stretch one rectangle of the source photograph onto a plane. Image v = 0 at the top. */
+export function createUvMappedPlane(
+  width: number,
+  height: number,
+  uvRect: ImageUvRect,
+  widthSegments = 24,
+  heightSegments = 32,
+  vAlong: "upright" | "near-to-far" = "upright",
+): THREE.PlaneGeometry {
+  const geometry = new THREE.PlaneGeometry(width, height, widthSegments, heightSegments);
+  const uv = geometry.attributes.uv;
+  for (let i = 0; i < uv.count; i += 1) {
+    const pu = uv.getX(i);
+    const pv = uv.getY(i);
+    const imageU = uvRect.u0 + (uvRect.u1 - uvRect.u0) * pu;
+    const imageV =
+      vAlong === "near-to-far"
+        ? uvRect.v0 + (uvRect.v1 - uvRect.v0) * pv
+        : uvRect.v1 + (uvRect.v0 - uvRect.v1) * pv;
+    uv.setXY(i, imageU, 1 - imageV);
+  }
+  uv.needsUpdate = true;
+  return geometry;
+}
+
 export const drawingVertex = /* glsl */ `
 uniform sampler2D uDepth;
 uniform vec2 uPointer;
@@ -44,8 +80,6 @@ uniform float uHover;
 uniform float uTime;
 uniform float uBreath;
 uniform float uLift;
-uniform float uRecede;
-uniform float uFocus;
 varying vec2 vUv;
 varying float vDepth;
 varying float vHover;
@@ -55,33 +89,69 @@ void main() {
   float depth = texture2D(uDepth, uv).r;
   vDepth = depth;
   float dist = distance(uv, uPointer);
-  float hover = smoothstep(0.32, 0.0, dist) * uHover;
+  float hover = smoothstep(0.26, 0.0, dist) * uHover;
   vHover = hover;
   vec3 pos = position;
-  pos.z += depth * 0.06 * uLift;
-  pos.z += hover * 0.075;
-  pos.z += sin(uTime * 0.32 + depth * 10.0) * 0.0038 * uBreath;
-  pos.z -= uRecede * 0.04;
-  pos.xy += (uv - 0.5) * uFocus * 0.04;
+  // Wrinkles and graphite pressure from the photograph — not a sculpted mesh.
+  pos.z += (depth - 0.38) * 0.12 * uLift;
+  // Attention separates the mark from the paper. Darker hatching lifts more.
+  pos.z += hover * mix(0.012, 0.09, depth);
+  pos.z += sin(uTime * 0.22 + depth * 7.0) * 0.0018 * uBreath;
   gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
 }
 `;
 
 export const drawingFragment = /* glsl */ `
 uniform sampler2D uMap;
-uniform float uSepia;
+uniform sampler2D uPaper;
+uniform sampler2D uMask;
+uniform float uWound;
 varying vec2 vUv;
 varying float vDepth;
 varying float vHover;
 
 void main() {
-  vec4 color = texture2D(uMap, vUv);
-  vec3 faithful = color.rgb;
-  vec3 warm = faithful * vec3(1.015, 0.995, 0.972);
-  vec3 receded = mix(warm, warm * 0.82, vDepth * 0.12);
-  receded += vec3(0.03, 0.026, 0.02) * vHover;
-  receded = mix(receded, faithful, 1.0 - uSepia);
-  gl_FragColor = vec4(receded, 1.0);
+  vec3 faithful = texture2D(uMap, vUv).rgb;
+  vec3 paper = texture2D(uPaper, vUv).rgb;
+  // Hover is line-separation, not a grade. Graphite darkens; paper stays.
+  vec3 separated = mix(faithful * 1.015, faithful * 0.82, vDepth);
+  vec3 color = mix(faithful, separated, vHover * 0.45);
+  float mask = texture2D(uMask, vUv).r;
+  float hole = mask * uWound;
+  float edge = smoothstep(0.04, 0.32, hole) * (1.0 - smoothstep(0.42, 0.82, hole));
+  color = mix(color, mix(color, paper * 0.62, 0.8), edge);
+  if (!gl_FrontFacing) {
+    color = paper * 0.88;
+  }
+  if (hole > 0.62) discard;
+  gl_FragColor = vec4(color, 1.0);
+  #include <colorspace_fragment>
+}
+`;
+
+export const unfoldedVertex = /* glsl */ `
+uniform sampler2D uDepth;
+uniform float uWrinkle;
+varying vec2 vUv;
+varying float vDepth;
+
+void main() {
+  vUv = uv;
+  float depth = texture2D(uDepth, uv).r;
+  vDepth = depth;
+  vec3 pos = position;
+  pos.z += (depth - 0.42) * uWrinkle;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+}
+`;
+
+export const unfoldedFragment = /* glsl */ `
+uniform sampler2D uMap;
+varying vec2 vUv;
+
+void main() {
+  vec3 color = texture2D(uMap, vUv).rgb;
+  gl_FragColor = vec4(color, 1.0);
   #include <colorspace_fragment>
 }
 `;

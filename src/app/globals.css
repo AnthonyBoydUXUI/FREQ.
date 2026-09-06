@@ -28,7 +28,7 @@ body {
 html[data-phase="transform"],
 html[data-phase="enter"],
 html[data-phase="explore"] {
-  background: var(--charcoal);
+  background: #cfc4b4;
 }
 
 body {
@@ -81,7 +81,7 @@ a {
 }
 
 .stage[data-immersed="true"] {
-  background: var(--charcoal);
+  background: #cfc4b4;
 }
 
 .poster,
@@ -103,7 +103,6 @@ a {
   left: 50%;
   transform: translate(-50%, -50%);
   object-fit: contain;
-  filter: saturate(0.92);
   transition: opacity 0.8s ease;
   pointer-events: none;
   z-index: 0;
@@ -163,6 +162,13 @@ a {
   z-index: 8;
   pointer-events: none;
   color: var(--oxidized);
+  opacity: 0.62;
+  transition: opacity 0.45s ease;
+}
+
+.chrome:hover,
+.chrome:focus-within {
+  opacity: 1;
 }
 
 .stage[data-immersed="true"] .chrome {
@@ -208,21 +214,19 @@ a {
   accent-color: var(--oxidized);
 }
 
+.quiet-control {
+  opacity: 0.55;
+}
+
+.quiet-control:hover,
+.quiet-control:focus-visible {
+  opacity: 1;
+}
+
 .quiet {
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-
-.whisper {
-  position: absolute;
-  left: 50%;
-  bottom: 5.2rem;
-  transform: translateX(-50%);
-  font-family: var(--font-serif), Georgia, serif;
-  font-size: 0.92rem;
-  color: var(--quiet);
-  pointer-events: none;
 }
 
 .captions {
@@ -389,11 +393,6 @@ a {
   .chrome {
     flex-direction: column;
     align-items: flex-start;
-  }
-  .whisper {
-    left: 1.2rem;
-    transform: none;
-    bottom: 7.4rem;
   }
 }
 

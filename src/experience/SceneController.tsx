@@ -73,15 +73,19 @@ export function SceneController() {
       engine.setRail(engine.rail + delta * 0.08);
     }
 
-    state.scene.fog = state.scene.fog ?? new THREE.Fog("#1c1a17", 8, 32);
+    state.scene.fog = state.scene.fog ?? new THREE.Fog("#e8e0d4", 18, 52);
     const fog = state.scene.fog as THREE.Fog;
     if (engine.phase === "explore" || engine.phase === "enter") {
-      fog.near = 4;
-      fog.far = 26;
-      fog.color.set("#1c1a17");
+      fog.near = 6;
+      fog.far = 22;
+      fog.color.set("#cfc4b4");
+    } else if (engine.phase === "return" || engine.phase === "transform") {
+      fog.near = 8;
+      fog.far = 28;
+      fog.color.set("#d9d0c3");
     } else {
-      fog.near = 12;
-      fog.far = 40;
+      fog.near = 18;
+      fog.far = 52;
       fog.color.set("#e8e0d4");
     }
   });

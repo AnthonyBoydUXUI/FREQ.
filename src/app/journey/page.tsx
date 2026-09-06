@@ -51,18 +51,19 @@ export default function JourneyPage() {
       <section id="transformation">
         <h2>The cowl opens</h2>
         <p>
-          In the installation, attention on the vaulted upper form makes graphite
-          gain a little depth. Selecting it lifts the helmet from the paper. The
-          panels separate. The camera enters. Seams become a nave. Bolts become
-          towers. The original drawing remains on the far wall, and returning
-          collapses the world back into the mark.
+          In the installation, the drawing stays still until a mark is touched.
+          The vaulted cowl lifts from the paper. A wound opens in the sheet.
+          The camera enters that mark. Floor, walls, and vault are unfolded
+          strips of the same photograph — wrinkles, graphite, tape, and unfinished
+          lines at architectural scale. The original cowl waits at the far end.
+          Returning collapses the world back into the drawing.
         </p>
         <ol className="sequence">
           <li>Still drawing</li>
-          <li>Helmet responds</li>
-          <li>Graphite gains depth</li>
-          <li>Helmet separates</li>
-          <li>Panels open into architecture</li>
+          <li>A mark responds</li>
+          <li>Graphite separates from paper</li>
+          <li>The helmet lifts</li>
+          <li>The sheet opens</li>
           <li>The visitor is inside the drawing</li>
           <li>The world returns to the mark</li>
         </ol>

@@ -21,24 +21,10 @@ export function FreqStage() {
   const boot = useEngine((s) => s.boot);
   const webgl = useEngine((s) => s.webgl);
   const phase = useEngine((s) => s.phase);
-  const showWhisper = useEngine((s) => s.showWhisper);
-  const dismissWhisper = useEngine((s) => s.dismissWhisper);
-  const pointer = useEngine((s) => s.pointer);
 
   useEffect(() => {
     boot();
   }, [boot]);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      if (!useEngine.getState().hoveredRegionId) showWhisper();
-    }, 7000);
-    return () => window.clearTimeout(timer);
-  }, [showWhisper]);
-
-  useEffect(() => {
-    if (pointer.inside || pointer.active) dismissWhisper();
-  }, [pointer.inside, pointer.active, dismissWhisper]);
 
   useEffect(() => {
     document.documentElement.dataset.phase = phase;
