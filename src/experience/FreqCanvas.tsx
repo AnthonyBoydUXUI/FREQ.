@@ -71,10 +71,6 @@ export default function FreqCanvas({
         }
         onReady?.();
       }}
-      onPointerMissed={() => {
-        const engine = useEngine.getState();
-        if (engine.phase === "explore") engine.requestReturn();
-      }}
     >
       <SceneLights />
       <Suspense fallback={null} key={artworkId}>

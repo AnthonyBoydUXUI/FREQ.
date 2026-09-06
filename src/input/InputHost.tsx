@@ -56,7 +56,12 @@ export function InputHost({
     let downX = 0;
     let downY = 0;
 
+    const fromUi = (event: Event) =>
+      event.target instanceof Element &&
+      Boolean(event.target.closest(".chrome, .related-mark, .skip-link, .media-chrome"));
+
     const onMove = (event: PointerEvent) => {
+      if (fromUi(event) && !dragging) return;
       const mapped = toNdc(event);
       const pressed = event.buttons > 0 || event.pressure > 0;
       setPointer({
@@ -85,6 +90,7 @@ export function InputHost({
       }
     };
     const onDown = (event: PointerEvent) => {
+      if (fromUi(event)) return;
       unlockAudio();
       dragging = true;
       lastY = event.clientY;
@@ -121,11 +127,8 @@ export function InputHost({
       const mapped = toNdc(event);
       const travel = Math.hypot(event.clientX - downX, event.clientY - downY);
       const engine = useEngine.getState();
-      const fromUi =
-        event.target instanceof Element &&
-        Boolean(event.target.closest(".chrome, .related-mark, .skip-link"));
       if (
-        !fromUi &&
+        !fromUi(event) &&
         travel <= TAP_PX &&
         mapped.inside &&
         canSelectRegion(engine.phase)

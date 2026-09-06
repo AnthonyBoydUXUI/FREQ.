@@ -65,9 +65,14 @@ describe("sheetInvite", () => {
     expect(sheetInvite({ phase: "encounter", hovered: null, inside: false })).toBe(
       "Touch to go inside",
     );
-    expect(sheetInvite({ phase: "encounter", hovered: null, inside: true })).toBe("Touch now");
+    expect(sheetInvite({ phase: "encounter", hovered: null, inside: true })).toBe(
+      "Touch to go inside",
+    );
     expect(sheetInvite({ phase: "approach", hovered: "cowl", inside: true })).toBe(
       "Touch here to go in",
+    );
+    expect(sheetInvite({ phase: "response", hovered: "plates", inside: true })).toBe(
+      "Touch here too",
     );
   });
 

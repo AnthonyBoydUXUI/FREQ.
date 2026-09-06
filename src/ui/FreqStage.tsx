@@ -103,7 +103,7 @@ export function FreqStage({ artworkId = "armor" }: { artworkId?: ArtworkId }) {
         {webgl === false ? <Fallback2D /> : null}
         <SheetHover artworkId={artworkId} />
         <EchoLayer />
-        <SemanticHtmlLayer enabled artworkId={artworkId} />
+        <SemanticHtmlLayer enabled={!immersed} artworkId={artworkId} />
         <SheetInvite />
       </div>
       <RelatedMarks currentId={artworkId} />

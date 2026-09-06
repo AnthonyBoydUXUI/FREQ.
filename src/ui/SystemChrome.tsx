@@ -32,6 +32,15 @@ export function SystemChrome({ artworkId }: { artworkId?: ArtworkId }) {
             Go back
           </button>
         ) : null}
+        {phase === "explore" ? (
+          <button
+            type="button"
+            className="text-button go-back"
+            onClick={() => useEngine.getState().requestTravel()}
+          >
+            Next picture
+          </button>
+        ) : null}
         <button
           type="button"
           className="text-button"
@@ -71,15 +80,6 @@ export function SystemChrome({ artworkId }: { artworkId?: ArtworkId }) {
         <Link className="text-button" href="/journey">
           Read this as a page
         </Link>
-        {phase === "explore" ? (
-          <button
-            type="button"
-            className="text-button"
-            onClick={() => useEngine.getState().requestTravel()}
-          >
-            Next picture
-          </button>
-        ) : null}
         {webgl === false ? (
           <span className="quiet">This picture stays still</span>
         ) : null}

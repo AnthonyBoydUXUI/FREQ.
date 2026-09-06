@@ -80,7 +80,6 @@ function stillHint(dailyCaption?: string) {
 export function sheetInvite({
   phase,
   hovered,
-  inside,
 }: GuideState): string | null {
   if (
     phase === "touch" ||
@@ -94,8 +93,8 @@ export function sheetInvite({
   if (hovered && isPortalRegion(hovered)) {
     return "Touch here to go in";
   }
-  if (inside || hovered) {
-    return "Touch now";
+  if (hovered) {
+    return "Touch here too";
   }
   return "Touch to go inside";
 }
