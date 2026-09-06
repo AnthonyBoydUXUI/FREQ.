@@ -22,7 +22,7 @@ describe("actionGuide", () => {
 
   it("keeps plates as a way in through the same picture, not a second world", () => {
     expect(actionGuide({ phase: "response", hovered: "plates", inside: true })).toBe(
-      "You can touch here too. The picture will still open.",
+      "Touch the picture. It will still open.",
     );
   });
 
@@ -69,10 +69,10 @@ describe("sheetInvite", () => {
       "Touch to go inside",
     );
     expect(sheetInvite({ phase: "approach", hovered: "cowl", inside: true })).toBe(
-      "Touch here to go in",
+      "Touch to go inside",
     );
     expect(sheetInvite({ phase: "response", hovered: "plates", inside: true })).toBe(
-      "Touch here too",
+      "Touch to go inside",
     );
   });
 

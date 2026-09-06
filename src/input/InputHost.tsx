@@ -146,9 +146,15 @@ export function InputHost({
         inside: mapped.inside,
         active: false,
       });
+      if (event.pointerType !== "mouse") {
+        setHoveredRegion(null);
+      }
     };
     const onLeave = () => {
-      if (!dragging) setPointer({ inside: false, active: false });
+      if (!dragging) {
+        setPointer({ inside: false, active: false });
+        setHoveredRegion(null);
+      }
     };
     const onWheel = (event: WheelEvent) => {
       const { phase, rail } = useEngine.getState();
