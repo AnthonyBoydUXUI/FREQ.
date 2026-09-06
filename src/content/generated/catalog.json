@@ -1,0 +1,167 @@
+{
+  "version": 1,
+  "heroArtworkId": "armor",
+  "artworks": [
+    {
+      "id": "armor",
+      "title": "Armor",
+      "hero": true,
+      "sourceFile": "614e0edf-c713-426c-9465-3c11919fd218.jpg",
+      "width": 480,
+      "height": 640,
+      "paths": {
+        "archival": "/artworks/armor/archival.jpg",
+        "display": "/artworks/armor/display.webp",
+        "depth": "/artworks/armor/depth.png",
+        "paper": "/artworks/armor/paper.jpg",
+        "linework": "/artworks/armor/linework.png",
+        "shadows": "/artworks/armor/shadows.png"
+      },
+      "strokeCount": 360,
+      "regions": {
+        "cowl": {
+          "id": "cowl",
+          "label": "Cowl",
+          "role": "helmet",
+          "polygon": [
+            [
+              0.62,
+              0.04
+            ],
+            [
+              0.6799999999999999,
+              0.28
+            ],
+            [
+              0.52,
+              0.36
+            ],
+            [
+              0.28,
+              0.3
+            ],
+            [
+              0.21999999999999997,
+              0.08
+            ],
+            [
+              0.42000000000000004,
+              0.02
+            ]
+          ],
+          "mask": "/artworks/armor/mask-cowl.png"
+        },
+        "plates": {
+          "id": "plates",
+          "label": "Plates",
+          "role": "structure",
+          "polygon": [
+            [
+              0.72,
+              0.28
+            ],
+            [
+              0.78,
+              0.48
+            ],
+            [
+              0.6799999999999999,
+              0.62
+            ],
+            [
+              0.42000000000000004,
+              0.58
+            ],
+            [
+              0.31999999999999995,
+              0.38
+            ],
+            [
+              0.48,
+              0.24
+            ]
+          ],
+          "mask": "/artworks/armor/mask-plates.png"
+        },
+        "forward": {
+          "id": "forward",
+          "label": "Forward node",
+          "role": "threshold",
+          "polygon": [
+            [
+              0.92,
+              0.42
+            ],
+            [
+              0.94,
+              0.62
+            ],
+            [
+              0.86,
+              0.78
+            ],
+            [
+              0.72,
+              0.86
+            ],
+            [
+              0.5800000000000001,
+              0.74
+            ],
+            [
+              0.6,
+              0.52
+            ],
+            [
+              0.74,
+              0.4
+            ]
+          ],
+          "mask": "/artworks/armor/mask-forward.png"
+        }
+      }
+    },
+    {
+      "id": "facet",
+      "title": "Facet",
+      "hero": false,
+      "sourceFile": "d39e45db-e775-420e-8bac-91e1526f6232.jpg",
+      "width": 480,
+      "height": 640,
+      "paths": {
+        "archival": "/artworks/facet/archival.jpg",
+        "display": "/artworks/facet/display.webp",
+        "depth": "/artworks/facet/depth.png",
+        "paper": "/artworks/facet/paper.jpg",
+        "linework": "/artworks/facet/linework.png",
+        "shadows": "/artworks/facet/shadows.png"
+      },
+      "strokeCount": 360
+    },
+    {
+      "id": "signal",
+      "title": "Signal",
+      "hero": false,
+      "sourceFile": "28d0ab8a-1f8a-41ce-adbb-4c53295da71e.jpg",
+      "width": 480,
+      "height": 640,
+      "paths": {
+        "archival": "/artworks/signal/archival.jpg",
+        "display": "/artworks/signal/display.webp",
+        "depth": "/artworks/signal/depth.png",
+        "paper": "/artworks/signal/paper.jpg",
+        "linework": "/artworks/signal/linework.png",
+        "shadows": "/artworks/signal/shadows.png"
+      },
+      "strokeCount": 360
+    }
+  ],
+  "audio": {
+    "graphite": "/audio/graphite.wav",
+    "paper": "/audio/paper.wav",
+    "drone": "/audio/drone.wav",
+    "metal": "/audio/metal.wav",
+    "air": "/audio/air.wav"
+  },
+  "notes": "Source photographs are camera captures with EXIF rotation baked so pixels are upright. Replace archival sources with original scans (same filenames) and re-run this script."
+}
