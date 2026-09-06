@@ -67,30 +67,33 @@ export function ArStage() {
         height={artwork.height}
       />
       <div className="media-chrome">
-        <p className="kicker">Paper in the room</p>
-        <h1>AR</h1>
+        <p className="kicker">The drawing in the room</p>
+        <h1>Look around you</h1>
         <p>
-          The drawing stays paper. Open the camera and rest the sheet on a table.
-          Nothing is replaced with a generic model.
+          Press Open camera, then point the phone at a table. The drawing sits
+          there as a sheet of paper. That is the whole AR gesture: paper in the
+          room, not a 3D object. Press Back to the picture when you are done.
         </p>
         <div className="media-actions">
           <button type="button" className="text-button" onClick={() => void startCamera()}>
-            {camera === "live" ? "Camera open" : "Open camera"}
+            {camera === "live" ? "Camera is on" : "Open camera"}
           </button>
           {xr.ar ? (
             <button type="button" className="text-button" onClick={() => void enterXr("immersive-ar")}>
               Enter AR
             </button>
           ) : (
-            <span className="quiet">WebXR AR is not on this device</span>
+            <span className="quiet">This phone cannot do headset AR. Open camera still works.</span>
           )}
-          {camera === "denied" ? <p>Camera permission was held. The sheet still rests here.</p> : null}
+          {camera === "denied" ? (
+            <p>The camera was not allowed. The drawing is still here as paper.</p>
+          ) : null}
           {xrNote ? <p>{xrNote}</p> : null}
         </div>
         <nav className="journey-nav">
-          <Link href="/">Return to the drawing</Link>
-          <Link href="/vr">VR</Link>
-          <Link href="/journey">Journey</Link>
+          <Link href="/">Back to the picture</Link>
+          <Link href="/vr">Sit and look around</Link>
+          <Link href="/journey">Read it instead</Link>
         </nav>
       </div>
     </main>

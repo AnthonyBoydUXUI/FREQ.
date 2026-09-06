@@ -16,6 +16,7 @@ import { FreqCursor } from "@/ui/FreqCursor";
 import { SheetHover } from "@/ui/SheetHover";
 import { PhaseTicker } from "@/ui/PhaseTicker";
 import { EchoLayer } from "@/ui/EchoLayer";
+import { SheetInvite } from "@/ui/SheetInvite";
 import { cursorIntent } from "@/ui/guide";
 import { canSelectRegion, isImmersed } from "@/engine/phases";
 import { report } from "@/engine/report";
@@ -39,7 +40,6 @@ export function FreqStage({ artworkId = "armor" }: { artworkId?: ArtworkId }) {
   const router = useRouter();
   const pathname = usePathname();
   const artwork = artworkById[artworkId];
-  const portal = portalFor(artworkId);
 
   useLayoutEffect(() => {
     setArtwork(artworkId);
@@ -73,9 +73,9 @@ export function FreqStage({ artworkId = "armor" }: { artworkId?: ArtworkId }) {
     >
       <h1 className="sr-only">FREQ.</h1>
       <p className="sr-only">
-        The drawing is the interface. Move over {artwork.title}. Touch it to enter the
-        world inside the {portal.label.toLowerCase()}. Armor, Facet, and Signal are the
-        three original drawings. Journey is a still path through the same meaning.
+        Touch the big picture of {artwork.title} to go inside it. The small pictures
+        on the sides are other drawings you can open. In the corners you can turn
+        sound on, show captions, or read this as a page.
       </p>
       <div
         className="drawing-frame"
@@ -104,6 +104,7 @@ export function FreqStage({ artworkId = "armor" }: { artworkId?: ArtworkId }) {
         <SheetHover artworkId={artworkId} />
         <EchoLayer />
         <SemanticHtmlLayer enabled artworkId={artworkId} />
+        <SheetInvite />
       </div>
       <RelatedMarks currentId={artworkId} />
       <InputHost target={stageEl} sheet={sheetEl} />

@@ -56,64 +56,64 @@ const REGION_COPY: Record<
       "The vaulted upper form. A helmet, a roof, a nave waiting inside a single curve.",
     sonic: "Low architectural tone. Metal under paper.",
     accessibleLabel:
-      "Cowl. The vaulted upper form of the drawing. Activate to open the helmet and enter the world inside the mark.",
-    approach: "The helmet can open. Touch to enter.",
+      "Helmet. Touch the helmet to open the picture and go inside the drawing.",
+    approach: "Touch the helmet. This is the way in.",
   },
   plates: {
     meaning: "Overlapping plates and rivets. Structure that could become streets.",
     sonic: "Dense hatching. Dry graphite grain.",
     accessibleLabel:
-      "Plates. Segmented armor in the center of the drawing. The surface lifts, but this region does not yet open a world.",
-    approach: "The plates respond. Touch to enter through the helmet.",
+      "Armor plates. You can touch here too. The picture will still open.",
+    approach: "You can touch here too. The picture will still open.",
   },
   forward: {
     meaning: "The blunt forward node. A threshold, not yet a door.",
     sonic: "Quieter paper. A held breath.",
     accessibleLabel:
-      "Forward node. The rounded front of the drawing. It responds to attention, but the world opens through the cowl.",
-    approach: "A threshold. Touch to enter through the helmet.",
+      "Front of the drawing. You can touch here too. The picture will still open.",
+    approach: "You can touch here too. The picture will still open.",
   },
   visor: {
     meaning: "The dark band across the faceted head. A slit that can become a room.",
     sonic: "A thinner metallic edge. Paper folded once.",
     accessibleLabel:
-      "Visor. The dark band on the faceted helmet. Activate to open this drawing and enter the chamber inside the mark.",
-    approach: "The visor can open. Touch to enter.",
+      "Visor. Touch this dark band to open the picture and go inside.",
+    approach: "Touch this dark band. This is the way in.",
   },
   horns: {
     meaning: "Antenna-like horns. Structure above the visor, not a second door.",
     sonic: "Dry points of graphite. A scratch more than a tone.",
     accessibleLabel:
-      "Horns. The protrusions above the visor. They respond to attention. The world opens through the visor.",
-    approach: "The horns respond. Touch to enter through the visor.",
+      "Horns. You can touch here too. The picture will still open.",
+    approach: "You can touch here too. The picture will still open.",
   },
   harness: {
     meaning: "Layered plates of the torso. A harness that could become a floor.",
     sonic: "Heavier hatching. Graphite laid in rows.",
     accessibleLabel:
-      "Harness. The plated torso of the drawing. It responds, but the chamber opens through the visor.",
-    approach: "The harness holds. Touch to enter through the visor.",
+      "Harness. You can touch here too. The picture will still open.",
+    approach: "You can touch here too. The picture will still open.",
   },
   crown: {
     meaning: "Jagged strokes at the top of the head. A crown that can become a vault.",
     sonic: "Quick vertical grain. Paper catching at the edge.",
     accessibleLabel:
-      "Crown. The jagged top of the profile. Activate to open this drawing and enter the relay inside the mark.",
-    approach: "The crown can open. Touch to enter.",
+      "Crown. Touch the jagged top to open the picture and go inside.",
+    approach: "Touch the jagged top. This is the way in.",
   },
   mask: {
     meaning: "The banded covering over the face. A mask that remains a mask.",
     sonic: "Horizontal hatching. A held vowel.",
     accessibleLabel:
-      "Mask. The banded covering of the face. It responds to attention. The world opens through the crown.",
-    approach: "The mask responds. Touch to enter through the crown.",
+      "Mask. You can touch here too. The picture will still open.",
+    approach: "You can touch here too. The picture will still open.",
   },
   strap: {
     meaning: "The strap and collar plates. A threshold along the neck.",
     sonic: "Quieter paper under the jaw.",
     accessibleLabel:
-      "Strap. The collar and shoulder of the drawing. It responds, but the relay opens through the crown.",
-    approach: "A strap. Touch to enter through the crown.",
+      "Strap. You can touch here too. The picture will still open.",
+    approach: "You can touch here too. The picture will still open.",
   },
 };
 

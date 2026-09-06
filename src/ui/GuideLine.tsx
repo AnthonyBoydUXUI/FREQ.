@@ -1,7 +1,7 @@
 "use client";
 
 import { useEngine } from "@/engine/store";
-import { actionGuide } from "@/ui/guide";
+import { guideCopy } from "@/ui/guide";
 import { dailyState } from "@/engine/daily";
 import type { ArtworkId } from "@/engine/types";
 
@@ -13,7 +13,7 @@ export function GuideLine({ artworkId }: { artworkId?: ArtworkId }) {
   const pendingTravelId = useEngine((s) => s.pendingTravelId);
   const current = artworkId ?? storeId;
   const daily = dailyState(current);
-  const line = actionGuide({
+  const copy = guideCopy({
     phase,
     hovered,
     inside,
@@ -24,7 +24,8 @@ export function GuideLine({ artworkId }: { artworkId?: ArtworkId }) {
 
   return (
     <p className="guide" aria-live="polite">
-      {line}
+      <strong className="guide-do">{copy.do}</strong>
+      {copy.hint ? <span className="guide-hint">{copy.hint}</span> : null}
     </p>
   );
 }

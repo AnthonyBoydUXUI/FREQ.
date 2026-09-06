@@ -21,7 +21,7 @@ export function RelatedMarks({ currentId }: { currentId?: ArtworkId }) {
           className="related-mark"
           href={artwork.id === "armor" ? "/" : `/t/${artwork.id}`}
           data-id={artwork.id}
-          aria-label={`${artwork.title}. Another original drawing. Open this territory.`}
+          aria-label={`${artwork.title}. Touch this picture too.`}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -32,7 +32,7 @@ export function RelatedMarks({ currentId }: { currentId?: ArtworkId }) {
           />
           <span>
             {artwork.title}
-            <em>Open this drawing</em>
+            <em>Touch this too</em>
           </span>
         </Link>
       ))}

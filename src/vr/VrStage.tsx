@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { artworkById, portalFor } from "@/content/artworks";
 import { useEngine } from "@/engine/store";
 import { detectXr, navigatorXr } from "@/xr/session";
 import { SystemChrome } from "@/ui/SystemChrome";
@@ -20,9 +19,6 @@ const FreqCanvas = dynamic(() => import("@/experience/FreqCanvas"), {
 export function VrStage() {
   const boot = useEngine((s) => s.boot);
   const enterExploreDirectly = useEngine((s) => s.enterExploreDirectly);
-  const artworkId = useEngine((s) => s.artworkId);
-  const artwork = artworkById[artworkId];
-  const portal = portalFor(artworkId);
   const phase = useEngine((s) => s.phase);
   const [xr, setXr] = useState({ ar: false, vr: false });
   const [note, setNote] = useState<string | null>(null);
@@ -57,29 +53,31 @@ export function VrStage() {
         <FreqCanvas xrCompatible />
       </div>
       <div className="media-chrome">
-        <p className="kicker">Seated world</p>
-        <h1>VR</h1>
+        <p className="kicker">Sit and look around</p>
+        <h1>Inside</h1>
         <p>
-          The {portal.label.toLowerCase()} of {artwork.title} is the door. Enter seated
-          if a headset is not present. The interior is still this photograph.
+          You do not need a headset. Press Go inside to sit in the world that is
+          already in the drawing. Slide to look around. Press Go back when you want
+          the picture again. If this device has a headset, Enter VR is the same
+          interior, only around you.
         </p>
         <div className="media-actions">
           <button type="button" className="text-button" onClick={() => enterExploreDirectly()}>
-            Enter seated
+            Go inside
           </button>
           {xr.vr ? (
             <button type="button" className="text-button" onClick={() => void enterVr()}>
               Enter VR
             </button>
           ) : (
-            <span className="quiet">WebXR VR is not on this device</span>
+            <span className="quiet">This device has no headset. Go inside still works.</span>
           )}
           {note ? <p>{note}</p> : null}
         </div>
         <nav className="journey-nav">
-          <Link href="/">Return to the drawing</Link>
-          <Link href="/ar">AR</Link>
-          <Link href="/journey">Journey</Link>
+          <Link href="/">Back to the picture</Link>
+          <Link href="/ar">Look around you</Link>
+          <Link href="/journey">Read it instead</Link>
         </nav>
       </div>
       <PhaseTicker />

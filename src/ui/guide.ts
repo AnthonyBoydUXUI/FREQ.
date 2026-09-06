@@ -11,36 +11,93 @@ export type GuideState = {
   dailyCaption?: string;
 };
 
-export function actionGuide({
+export type GuideCopy = {
+  do: string;
+  hint: string | null;
+};
+
+export function actionGuide(state: GuideState): string {
+  return guideCopy(state).do;
+}
+
+export function guideCopy({
   phase,
   hovered,
   inside,
   artworkId = "armor",
   pendingTravelId,
   dailyCaption,
-}: GuideState): string {
+}: GuideState): GuideCopy {
   if (pendingTravelId) {
-    return `The world is closing. ${artworkById[pendingTravelId].title} is waiting.`;
+    return {
+      do: `Wait. The next picture is opening: ${artworkById[pendingTravelId].title}.`,
+      hint: "You are leaving this world and going into another drawing.",
+    };
   }
   if (phase === "touch" || phase === "transform" || phase === "enter") {
-    return "Stay. The drawing is opening.";
+    return {
+      do: "Wait. The picture is opening.",
+      hint: "Stay with it. You are going inside the drawing.",
+    };
   }
   if (phase === "explore") {
-    return `Drag to look around. The far mark opens ${artworkById[nextArtworkId(artworkId)].title}. Return closes this world.`;
+    const next = artworkById[nextArtworkId(artworkId)].title;
+    return {
+      do: "Slide to look around. Press Go back when you want the picture again.",
+      hint: `You can also press Next picture to open ${next}.`,
+    };
   }
   if (phase === "return") {
-    return "The world is closing back into the drawing.";
+    return {
+      do: "Wait. You are coming back to the picture.",
+      hint: null,
+    };
   }
   if (hovered && regionById[hovered]) {
-    return regionById[hovered].approach;
+    const region = regionById[hovered];
+    return {
+      do: region.approach,
+      hint: region.meaning,
+    };
   }
   if (inside) {
-    return "Touch to enter the world inside.";
+    return {
+      do: "You are on the picture. Touch it to go inside.",
+      hint: stillHint(dailyCaption),
+    };
   }
-  if (dailyCaption) {
-    return `${dailyCaption} Move over the drawing.`;
+  return {
+    do: "Touch the picture to go inside. There is a world in the drawing.",
+    hint: stillHint(dailyCaption),
+  };
+}
+
+function stillHint(dailyCaption?: string) {
+  const sides = "The small pictures on the sides open too.";
+  return dailyCaption ? `${dailyCaption} ${sides}` : sides;
+}
+
+export function sheetInvite({
+  phase,
+  hovered,
+  inside,
+}: GuideState): string | null {
+  if (
+    phase === "touch" ||
+    phase === "transform" ||
+    phase === "enter" ||
+    phase === "explore" ||
+    phase === "return"
+  ) {
+    return null;
   }
-  return "Move over the drawing. Touch it to enter.";
+  if (hovered && isPortalRegion(hovered)) {
+    return "Touch here to go in";
+  }
+  if (inside || hovered) {
+    return "Touch now";
+  }
+  return "Touch to go inside";
 }
 
 export function cursorIntent({

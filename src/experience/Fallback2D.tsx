@@ -72,11 +72,11 @@ export function Fallback2D() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={artwork.paths.display} alt="" />
           <p>
-            Inside the {portal.label.toLowerCase()}, the same paper continues. Graphite
-            becomes space.
+            Inside the {portal.label.toLowerCase()}, the same paper continues. Slide to
+            look. Press Go back when you want the picture again.
           </p>
           <button type="button" onClick={() => useEngine.getState().requestReturn()}>
-            Return to the drawing
+            Go back
           </button>
         </div>
       ) : null}

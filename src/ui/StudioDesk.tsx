@@ -83,8 +83,8 @@ export function StudioDesk() {
           stays off.
         </p>
         <nav className="journey-nav">
-          <Link href="/">Installation</Link>
-          <Link href="/journey">Journey</Link>
+          <Link href="/">Back to the picture</Link>
+          <Link href="/journey">Read this as a page</Link>
           <Link href="/api/provenance">Provenance JSON</Link>
         </nav>
       </header>

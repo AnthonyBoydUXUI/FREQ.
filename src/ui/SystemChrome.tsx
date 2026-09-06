@@ -28,8 +28,8 @@ export function SystemChrome({ artworkId }: { artworkId?: ArtworkId }) {
 
       <div className="chrome-right">
         {phase === "explore" || phase === "enter" ? (
-          <button type="button" className="text-button" onClick={requestReturn}>
-            Return
+          <button type="button" className="text-button go-back" onClick={requestReturn}>
+            Go back
           </button>
         ) : null}
         <button
@@ -41,7 +41,7 @@ export function SystemChrome({ artworkId }: { artworkId?: ArtworkId }) {
           }}
           aria-pressed={!muted}
         >
-          {muted ? "Sound" : "Sound on"}
+          {muted ? "Turn sound on" : "Turn sound off"}
         </button>
         {!muted ? (
           <label className="volume">
@@ -66,10 +66,10 @@ export function SystemChrome({ artworkId }: { artworkId?: ArtworkId }) {
           aria-pressed={captions}
           onClick={() => setCaptions(!captions)}
         >
-          Captions
+          {captions ? "Hide captions" : "Show captions"}
         </button>
         <Link className="text-button" href="/journey">
-          Journey
+          Read this as a page
         </Link>
         {phase === "explore" ? (
           <button
@@ -77,11 +77,11 @@ export function SystemChrome({ artworkId }: { artworkId?: ArtworkId }) {
             className="text-button"
             onClick={() => useEngine.getState().requestTravel()}
           >
-            Next drawing
+            Next picture
           </button>
         ) : null}
         {webgl === false ? (
-          <span className="quiet">Flat field</span>
+          <span className="quiet">This picture stays still</span>
         ) : null}
       </div>
     </div>

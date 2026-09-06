@@ -32,7 +32,7 @@ export function SemanticHtmlLayer({
       <button
         type="button"
         className="sheet-enter"
-        aria-label={`Touch the drawing to enter the world inside the ${portal.label.toLowerCase()}.`}
+        aria-label="Touch the picture to go inside the drawing."
         onClick={() => {
           if (!canSelectRegion(phase)) return;
           unlockAudio();
