@@ -1,0 +1,90 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
+import * as THREE from "three";
+import { useEngine } from "@/engine/store";
+import { DRAWING_HEIGHT, DRAWING_WIDTH } from "@/engine/types";
+import { regions } from "@/content/artworks";
+import { pointInPolygon } from "@/semantic/hitTest";
+import { adaptFromFps } from "@/quality/detect";
+import { canExplore } from "@/engine/phases";
+
+const raycaster = new THREE.Raycaster();
+const pointerNdc = new THREE.Vector2();
+
+export function SceneController() {
+  const { camera, gl, clock } = useThree();
+  const drawingPlane = useRef(new THREE.Plane(new THREE.Vector3(0, 0, 1), 0));
+  const hit = useRef(new THREE.Vector3());
+  const fpsWindow = useRef<number[]>([]);
+  const lastAdapt = useRef(0);
+
+  useEffect(() => {
+    const element = gl.domElement;
+    const onContextLost = (event: Event) => {
+      event.preventDefault();
+      useEngine.getState().setWebgl(false);
+    };
+    element.addEventListener("webglcontextlost", onContextLost, false);
+    return () => element.removeEventListener("webglcontextlost", onContextLost);
+  }, [gl]);
+
+  useFrame((state, delta) => {
+    const engine = useEngine.getState();
+    engine.tickSequence(delta);
+
+    const fps = 1 / Math.max(delta, 0.0001);
+    fpsWindow.current.push(fps);
+    if (fpsWindow.current.length > 45) fpsWindow.current.shift();
+    const avg =
+      fpsWindow.current.reduce((sum, value) => sum + value, 0) / fpsWindow.current.length;
+    if (clock.elapsedTime - lastAdapt.current > 2.5) {
+      engine.setFps(avg);
+      const next = adaptFromFps(engine.quality, avg);
+      if (next !== engine.quality) engine.setQuality(next);
+      lastAdapt.current = clock.elapsedTime;
+    }
+
+    pointerNdc.set(engine.pointer.ndcX, engine.pointer.ndcY);
+    raycaster.setFromCamera(pointerNdc, camera);
+    const planeHit = raycaster.ray.intersectPlane(drawingPlane.current, hit.current);
+    if (planeHit) {
+      const u = hit.current.x / DRAWING_WIDTH + 0.5;
+      const v = 0.5 - hit.current.y / DRAWING_HEIGHT;
+      const inside = u >= 0 && u <= 1 && v >= 0 && v <= 1;
+      engine.setPointer({ u, v, inside });
+      if (
+        engine.phase === "encounter" ||
+        engine.phase === "notice" ||
+        engine.phase === "approach" ||
+        engine.phase === "response"
+      ) {
+        const region = inside
+          ? regions.find((item) => pointInPolygon(u, v, item.polygon))
+          : undefined;
+        if ((region?.id ?? null) !== engine.hoveredRegionId) {
+          engine.setHoveredRegion(region?.id ?? null);
+        }
+      }
+    }
+
+    if (canExplore(engine.phase) && engine.pointer.active) {
+      engine.setRail(engine.rail + delta * 0.08);
+    }
+
+    state.scene.fog = state.scene.fog ?? new THREE.Fog("#1c1a17", 8, 32);
+    const fog = state.scene.fog as THREE.Fog;
+    if (engine.phase === "explore" || engine.phase === "enter") {
+      fog.near = 4;
+      fog.far = 26;
+      fog.color.set("#1c1a17");
+    } else {
+      fog.near = 12;
+      fog.far = 40;
+      fog.color.set("#e8e0d4");
+    }
+  });
+
+  return null;
+}

@@ -1,0 +1,42 @@
+{
+  "name": "freq",
+  "version": "0.1.0",
+  "private": true,
+  "description": "FREQ. — a living spatial digital installation born from three original hand drawings.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "process:artworks": "python3 scripts/process-artworks.py"
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.7.8",
+    "@react-three/fiber": "^9.7.0",
+    "next": "16.3.4",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "three": "^0.185.1",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/three": "^0.185.0",
+    "@vitejs/plugin-react": "^5.1.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.4",
+    "jsdom": "^27.0.0",
+    "typescript": "^5",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^5.0.0"
+  },
+  "packageManager": "pnpm@10.33.3",
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,394 @@
+:root {
+  --parchment: #e8e0d4;
+  --bone: #f3eee6;
+  --graphite: #2a2a28;
+  --charcoal: #161513;
+  --warm-gray: #8a847c;
+  --ink: #1c1b19;
+  --oxidized: #4a4742;
+  --quiet: rgba(42, 42, 40, 0.62);
+  --focus: #5c564c;
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  min-height: 100%;
+  background: var(--parchment);
+  color: var(--graphite);
+}
+
+html[data-phase="transform"],
+html[data-phase="enter"],
+html[data-phase="explore"] {
+  background: var(--charcoal);
+}
+
+body {
+  font-family: var(--font-sans), "IBM Plex Sans", Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+}
+
+.sr-only,
+.sr-live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  z-index: 40;
+  padding: 0.55rem 0.8rem;
+  background: var(--bone);
+  color: var(--ink);
+  text-decoration: none;
+  transform: translateY(-220%);
+}
+
+.skip-link:focus-visible {
+  transform: none;
+}
+
+.stage {
+  position: relative;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: var(--parchment);
+  transition: background 1.2s ease;
+}
+
+.stage[data-immersed="true"] {
+  background: var(--charcoal);
+}
+
+.poster,
+.freq-canvas,
+.fallback-stage {
+  position: absolute;
+  inset: 0;
+}
+
+.poster {
+  width: min(92vw, 92dvh * 1.333);
+  height: auto;
+  max-height: 86dvh;
+  margin: auto;
+  object-fit: contain;
+  filter: saturate(0.92);
+  transition: opacity 0.8s ease;
+  pointer-events: none;
+}
+
+.poster[data-hidden="true"] {
+  opacity: 0;
+}
+
+.freq-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.drawing-frame {
+  position: absolute;
+  inset: 0;
+  width: min(92vw, 92dvh * 1.333);
+  height: min(86dvh, 69vw);
+  max-height: 86dvh;
+  margin: auto;
+  pointer-events: none;
+}
+
+.semantic-html {
+  position: absolute;
+  inset: 0;
+}
+
+.semantic-button {
+  position: absolute;
+  background: transparent;
+  border: 0;
+  pointer-events: none;
+}
+
+.semantic-html[data-enabled="true"] .semantic-button {
+  pointer-events: auto;
+}
+
+.semantic-button:focus-visible {
+  pointer-events: auto;
+  outline: 1px solid var(--focus);
+  outline-offset: 4px;
+}
+
+.chrome {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  padding: 1.1rem 1.2rem 1.15rem;
+  z-index: 5;
+  pointer-events: none;
+  color: var(--oxidized);
+}
+
+.stage[data-immersed="true"] .chrome {
+  color: #cfc6b8;
+}
+
+.chrome-left,
+.chrome-right {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  pointer-events: auto;
+  flex-wrap: wrap;
+}
+
+.mark {
+  font-family: var(--font-serif), "Newsreader", Georgia, serif;
+  letter-spacing: 0.18em;
+  font-size: 0.72rem;
+}
+
+.text-button {
+  appearance: none;
+  background: none;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.text-button:focus-visible,
+.volume input:focus-visible {
+  outline: 1px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.volume input {
+  width: 5.5rem;
+  accent-color: var(--oxidized);
+}
+
+.quiet {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.whisper {
+  position: absolute;
+  left: 50%;
+  bottom: 5.2rem;
+  transform: translateX(-50%);
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 0.92rem;
+  color: var(--quiet);
+  pointer-events: none;
+}
+
+.captions {
+  position: absolute;
+  left: 1.2rem;
+  bottom: 3.3rem;
+  z-index: 6;
+  font-size: 0.78rem;
+  color: var(--quiet);
+  opacity: 0;
+  max-width: 22rem;
+}
+
+.captions[data-visible="true"] {
+  opacity: 1;
+}
+
+.fallback-stage {
+  display: grid;
+  place-items: center;
+}
+
+.fallback-paper {
+  position: relative;
+  width: min(92vw, 92dvh * 1.333);
+  transform-style: preserve-3d;
+}
+
+.fallback-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.fallback-region {
+  position: absolute;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.fallback-region:focus-visible {
+  outline: 1px solid var(--focus);
+}
+
+.fallback-world {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 1rem;
+  background: rgba(22, 21, 19, 0.92);
+  color: #e8e0d4;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.fallback-world img {
+  width: min(72vw, 520px);
+  height: auto;
+  opacity: 0.92;
+}
+
+.fallback-world button {
+  appearance: none;
+  background: none;
+  border: 1px solid #cfc6b8;
+  color: inherit;
+  padding: 0.55rem 0.9rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.journey {
+  min-height: 100dvh;
+  padding: 8vh 7vw 12vh;
+  max-width: 72rem;
+  margin: 0 auto;
+}
+
+.journey header {
+  margin-bottom: 8vh;
+}
+
+.journey h1 {
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(2.4rem, 6vw, 4.8rem);
+  letter-spacing: 0.12em;
+}
+
+.kicker {
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--warm-gray);
+  margin-bottom: 1rem;
+}
+
+.lede {
+  max-width: 38rem;
+  font-size: 1.15rem;
+  line-height: 1.55;
+  margin-top: 1.4rem;
+}
+
+.territories {
+  display: grid;
+  gap: 8vh;
+}
+
+.territory {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.territory img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.territory h2 {
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: 1.6rem;
+}
+
+.territory p,
+.journey article p {
+  max-width: 40rem;
+  line-height: 1.65;
+  color: var(--oxidized);
+}
+
+.journey a {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.journey-nav {
+  display: flex;
+  gap: 1.2rem;
+  margin-top: 2rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sequence {
+  margin: 10vh 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.sequence li {
+  list-style: none;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 1.15rem;
+}
+
+@media (max-width: 720px) {
+  .chrome {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .whisper {
+    left: 1.2rem;
+    transform: none;
+    bottom: 7.4rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .poster,
+  .stage,
+  .fallback-paper {
+    transition: none;
+  }
+}
