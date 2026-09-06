@@ -63,30 +63,30 @@ export function CameraDirector() {
       );
     } else if (phase === "enter") {
       desired.current.lerpVectors(
-        new THREE.Vector3(cowlCenter.x * 0.06, 0.92, 0.08),
-        new THREE.Vector3(0, 1.02, -2.35),
+        new THREE.Vector3(cowlCenter.x * 0.06, 0.88, 0.08),
+        new THREE.Vector3(0, 0.82, -1.55),
         progress,
       );
       desiredLook.current.lerpVectors(
-        new THREE.Vector3(0, 0.9, -3.2),
-        new THREE.Vector3(0, 0.95, -6.5),
+        new THREE.Vector3(0, 0.9, -2.4),
+        new THREE.Vector3(0, 1.12, -4.1),
         progress,
       );
     } else if (phase === "explore") {
       desired.current.set(
-        pointer.ndcX * 0.28,
-        1.02 + pointer.ndcY * 0.1,
-        -2.35 - rail * 2.6,
+        pointer.ndcX * 0.22,
+        0.82 + pointer.ndcY * 0.08,
+        -1.55 - rail * 2.1,
       );
-      desiredLook.current.set(pointer.ndcX * 0.45, 0.95, -6.8 - rail * 2.2);
+      desiredLook.current.set(pointer.ndcX * 0.35, 1.08, -4.4 - rail * 1.6);
     } else if (phase === "return") {
       desired.current.lerpVectors(
-        new THREE.Vector3(0, 1.02, -4.2),
+        new THREE.Vector3(0, 0.82, -2.8),
         encounterPos,
         progress,
       );
       desiredLook.current.lerpVectors(
-        new THREE.Vector3(0, 0.95, -6.5),
+        new THREE.Vector3(0, 1.08, -4.4),
         encounterLook,
         progress,
       );

@@ -22,8 +22,8 @@ const SCALE = 2.55;
 const FLOOR_UV = { u0: 0.24, v0: 0.3, u1: 0.8, v1: 0.9 };
 const LEFT_UV = { u0: 0.0, v0: 0.02, u1: 0.36, v1: 0.6 };
 const RIGHT_UV = { u0: 0.64, v0: 0.08, u1: 1.0, v1: 0.82 };
-const VAULT_UV = { u0: 0.2, v0: 0.02, u1: 0.7, v1: 0.34 };
-const TAPE_UV = { u0: 0.02, v0: 0.82, u1: 0.98, v1: 1.0 };
+const VAULT_UV = { u0: 0.18, v0: 0.02, u1: 0.74, v1: 0.38 };
+const TAPE_UV = { u0: 0.05, v0: 0.62, u1: 0.95, v1: 1.0 };
 
 export function InteriorWorld() {
   const [map, depth, paper] = useTexture(
@@ -155,20 +155,20 @@ export function InteriorWorld() {
       />
       <mesh
         geometry={leftWall}
-        rotation={[0, 0.72, 0]}
-        position={[-floorSize.width * 0.42, leftSize.height / 2, midZ]}
+        rotation={[0, 0.62, 0]}
+        position={[-floorSize.width * 0.38, leftSize.height / 2, midZ - 0.35]}
         material={unfolded}
       />
       <mesh
         geometry={rightWall}
-        rotation={[0, -0.68, 0]}
-        position={[floorSize.width * 0.42, rightSize.height / 2, midZ - 0.2]}
+        rotation={[0, -0.58, 0]}
+        position={[floorSize.width * 0.38, rightSize.height / 2, midZ - 0.55]}
         material={unfolded}
       />
       <mesh
         geometry={vault}
-        rotation={[1.05, 0, 0]}
-        position={[0, Math.max(leftSize.height, rightSize.height) * 0.78, midZ]}
+        rotation={[1.22, 0, 0]}
+        position={[0, 1.72, midZ - 0.15]}
         material={unfolded}
       />
       <mesh
