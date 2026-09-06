@@ -111,14 +111,6 @@ a {
 }
 
 .poster {
-  width: var(--draw-w);
-  height: var(--draw-h);
-  max-width: var(--draw-w);
-  max-height: var(--draw-h);
-  inset: auto;
-  top: calc(50% - var(--chrome-space) / 4);
-  left: 50%;
-  transform: translate(-50%, -50%);
   object-fit: contain;
   transition: opacity 0.8s ease;
   pointer-events: none;
@@ -138,14 +130,29 @@ a {
 
 .drawing-frame {
   position: absolute;
-  inset: 0;
+  top: calc(50% - var(--chrome-space) / 4);
+  left: 50%;
   width: var(--draw-w);
   height: var(--draw-h);
-  max-height: var(--draw-h);
-  aspect-ratio: 3 / 4;
-  margin: auto;
-  pointer-events: none;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
   z-index: 4;
+  cursor: pointer;
+}
+
+.stage[data-immersed="true"] .drawing-frame {
+  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: none;
+  pointer-events: none;
+  cursor: none;
+}
+
+.stage[data-immersed="true"] .freq-canvas {
+  pointer-events: auto;
 }
 
 .semantic-html {
@@ -497,7 +504,7 @@ a {
 
 .fallback-paper {
   position: relative;
-  width: var(--draw-w);
+  width: 100%;
   transform-style: preserve-3d;
 }
 

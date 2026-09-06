@@ -1,7 +1,7 @@
 import { DRAWING_HEIGHT, DRAWING_WIDTH } from "@/engine/types";
 
 export const ENCOUNTER_FOV = 28;
-export const DRAWING_MARGIN = 1.12;
+export const DRAWING_MARGIN = 1.02;
 
 /** Camera distance that keeps the whole sheet visible for this viewport. */
 export function fitDistance(

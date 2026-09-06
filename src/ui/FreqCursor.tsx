@@ -34,7 +34,7 @@ export function FreqCursor() {
 
   useEffect(() => {
     const onMove = (event: PointerEvent) => {
-      const mouse = event.pointerType === "mouse" || event.pointerType === "pen";
+      const mouse = event.pointerType !== "touch";
       const stage = document.querySelector(".stage");
       if (!(stage instanceof HTMLElement)) return;
       const rect = stage.getBoundingClientRect();

@@ -14,7 +14,7 @@ import { FreqCursor } from "@/ui/FreqCursor";
 import { SheetHover } from "@/ui/SheetHover";
 import { PhaseTicker } from "@/ui/PhaseTicker";
 import { cursorIntent } from "@/ui/guide";
-import { isImmersed } from "@/engine/phases";
+import { canSelectRegion, isImmersed } from "@/engine/phases";
 import { report } from "@/engine/report";
 
 const FreqCanvas = dynamic(() => import("@/experience/FreqCanvas"), {
@@ -58,18 +58,30 @@ export function FreqStage() {
         inside the helmet. Facet and Signal are the other two drawings. Journey
         is a still path through the same meaning.
       </p>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={heroArtwork.paths.display}
-        alt={heroArtwork.alt}
-        className="poster"
-        width={heroArtwork.width}
-        height={heroArtwork.height}
-        data-hidden={canvasReady && webgl === true ? "true" : "false"}
-      />
-      {webgl !== false ? <FreqCanvas onReady={() => setCanvasReady(true)} /> : null}
-      {webgl === false ? <Fallback2D /> : null}
-      <div className="drawing-frame" ref={setSheetEl} data-hovered={hovered ?? "none"}>
+      <div
+        className="drawing-frame"
+        ref={setSheetEl}
+        data-hovered={hovered ?? "none"}
+        onPointerUp={(event) => {
+          if (event.button !== 0) return;
+          const engine = useEngine.getState();
+          if (!canSelectRegion(engine.phase)) return;
+          engine.unlockAudio();
+          engine.rememberVisit("cowl");
+          engine.enterWorld();
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={heroArtwork.paths.display}
+          alt={heroArtwork.alt}
+          className="poster"
+          width={heroArtwork.width}
+          height={heroArtwork.height}
+          data-hidden={canvasReady && webgl === true ? "true" : "false"}
+        />
+        {webgl !== false ? <FreqCanvas onReady={() => setCanvasReady(true)} /> : null}
+        {webgl === false ? <Fallback2D /> : null}
         <SheetHover />
         <SemanticHtmlLayer enabled />
       </div>
