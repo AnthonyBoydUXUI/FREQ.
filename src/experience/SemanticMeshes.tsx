@@ -10,7 +10,6 @@ import type { RegionId } from "@/engine/types";
 
 export function SemanticMeshes() {
   const setHoveredRegion = useEngine((s) => s.setHoveredRegion);
-  const selectRegion = useEngine((s) => s.selectRegion);
   const rememberVisit = useEngine((s) => s.rememberVisit);
   const unlockAudio = useEngine((s) => s.unlockAudio);
   const phase = useEngine((s) => s.phase);
@@ -47,8 +46,8 @@ export function SemanticMeshes() {
             event.stopPropagation();
             unlockAudio();
             rememberVisit(region.id);
-            if (canSelectRegion(phase) || phase === "explore") {
-              selectRegion(region.id);
+            if (canSelectRegion(phase)) {
+              useEngine.getState().enterWorld();
             }
           }}
         >

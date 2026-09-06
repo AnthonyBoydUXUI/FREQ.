@@ -10,7 +10,6 @@ export function Fallback2D() {
   const pointer = useEngine((s) => s.pointer);
   const hovered = useEngine((s) => s.hoveredRegionId);
   const phase = useEngine((s) => s.phase);
-  const selectRegion = useEngine((s) => s.selectRegion);
   const setHoveredRegion = useEngine((s) => s.setHoveredRegion);
   const unlockAudio = useEngine((s) => s.unlockAudio);
   const rememberVisit = useEngine((s) => s.rememberVisit);
@@ -23,7 +22,16 @@ export function Fallback2D() {
 
   return (
     <div className="fallback-stage" aria-hidden={false}>
-      <div className="fallback-paper" style={{ transform: tilt }}>
+      <div
+        className="fallback-paper"
+        style={{ transform: tilt }}
+        onClick={() => {
+          if (!canSelectRegion(phase)) return;
+          unlockAudio();
+          rememberVisit("cowl");
+          useEngine.getState().enterWorld();
+        }}
+      >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={heroArtwork.paths.display}
@@ -49,10 +57,11 @@ export function Fallback2D() {
               onMouseEnter={() => setHoveredRegion(region.id)}
               onMouseLeave={() => setHoveredRegion(null)}
               onFocus={() => useEngine.getState().setFocusedRegion(region.id)}
-              onClick={() => {
+              onClick={(event) => {
+                event.stopPropagation();
                 unlockAudio();
                 rememberVisit(region.id);
-                if (canSelectRegion(phase)) selectRegion(region.id);
+                if (canSelectRegion(phase)) useEngine.getState().enterWorld();
               }}
             />
           );

@@ -16,9 +16,10 @@ export default function JourneyPage() {
         <h1>FREQ.</h1>
         <p className="lede">
           The artwork is the interface. This path keeps the same meaning without
-          requiring motion, spatial audio, or a 3D field. You can still meet the
-          drawings, follow the helmet into architecture, and return to the original
-          mark.
+          requiring motion, spatial audio, or a 3D field. Armor is the drawing
+          you meet on the installation. Facet and Signal, the other two original
+          drawings, wait here as related territories. You can still follow the
+          helmet into architecture and return to the original mark.
         </p>
         <nav className="journey-nav" aria-label="Journey">
           <Link href="/">Open the installation</Link>
@@ -30,7 +31,7 @@ export default function JourneyPage() {
 
       <section id="territories" className="territories">
         {artworks.map((artwork) => (
-          <article className="territory" key={artwork.id}>
+          <article className="territory" key={artwork.id} id={artwork.id}>
             <h2>{artwork.title}</h2>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -41,8 +42,8 @@ export default function JourneyPage() {
             />
             <p>
               {artwork.hero
-                ? "The first public territory. An armored form on wrinkled tracing paper. The vaulted cowl is the portal. The plates are structure. The forward node is a threshold."
-                : "A related territory in the same universe. Present, not yet opened as a world."}
+                ? "The first public territory, and the drawing on the installation. An armored form on wrinkled tracing paper. Touch that sheet to open the world inside the vaulted cowl. The plates are structure. The forward node is a threshold."
+                : "The other original drawing in this universe. Present here as a related territory. It is not yet opened as a world. Return to the installation to enter through Armor."}
             </p>
           </article>
         ))}
@@ -51,11 +52,11 @@ export default function JourneyPage() {
       <section id="transformation">
         <h2>The cowl opens</h2>
         <p>
-          In the installation, the drawing stays still until a mark is touched.
-          The vaulted cowl lifts from the paper. A wound opens in the sheet.
-          The camera enters that mark. Floor, walls, and vault are unfolded
-          strips of the same photograph — wrinkles, graphite, tape, and unfinished
-          lines at architectural scale. The original cowl waits at the far end.
+          In the installation, touch the Armor drawing. The vaulted cowl lifts
+          from the paper. A wound opens in the sheet. The camera enters that
+          mark. Floor, walls, and vault are unfolded strips of the same
+          photograph — wrinkles, graphite, tape, and unfinished lines at
+          architectural scale. The original cowl waits at the far end.
           Returning collapses the world back into the drawing.
         </p>
         <ol className="sequence">

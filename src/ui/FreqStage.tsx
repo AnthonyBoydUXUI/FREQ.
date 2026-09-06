@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { heroArtwork } from "@/content/artworks";
 import { useEngine } from "@/engine/store";
 import { SystemChrome } from "@/ui/SystemChrome";
+import { RelatedMarks } from "@/ui/RelatedMarks";
 import { SemanticHtmlLayer } from "@/ui/SemanticHtmlLayer";
 import { InputHost } from "@/input/InputHost";
 import { AudioHost } from "@/audio/AudioHost";
@@ -19,6 +20,7 @@ const FreqCanvas = dynamic(() => import("@/experience/FreqCanvas"), {
 
 export function FreqStage() {
   const [stageEl, setStageEl] = useState<HTMLElement | null>(null);
+  const [sheetEl, setSheetEl] = useState<HTMLElement | null>(null);
   const boot = useEngine((s) => s.boot);
   const webgl = useEngine((s) => s.webgl);
   const phase = useEngine((s) => s.phase);
@@ -42,9 +44,10 @@ export function FreqStage() {
     >
       <h1 className="sr-only">FREQ.</h1>
       <p className="sr-only">
-        A spatial installation made from an original hand drawing. The artwork is
-        the interface. Move over the drawing. The vaulted cowl can open into a world.
-        An accessible journey is available.
+        A spatial installation made from three original hand drawings. Armor is
+        the drawing you meet first. Touch the sheet to open the world inside the
+        vaulted cowl. Facet and Signal wait as related territories. An accessible
+        journey names all three.
       </p>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -57,10 +60,11 @@ export function FreqStage() {
       />
       {webgl === true ? <FreqCanvas /> : null}
       {webgl === false ? <Fallback2D /> : null}
-      <div className="drawing-frame">
-        <SemanticHtmlLayer enabled={webgl === false} />
+      <div className="drawing-frame" ref={setSheetEl}>
+        <SemanticHtmlLayer enabled />
       </div>
-      <InputHost target={stageEl} />
+      <RelatedMarks />
+      <InputHost target={stageEl} sheet={sheetEl} />
       <SystemChrome />
       <AudioHost />
     </section>

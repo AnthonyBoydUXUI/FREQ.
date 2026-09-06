@@ -8,6 +8,7 @@ import { canSelectRegion } from "@/engine/phases";
 export function SemanticHtmlLayer({ enabled }: { enabled: boolean }) {
   const setFocusedRegion = useEngine((s) => s.setFocusedRegion);
   const selectRegion = useEngine((s) => s.selectRegion);
+  const enterWorld = useEngine((s) => s.enterWorld);
   const unlockAudio = useEngine((s) => s.unlockAudio);
   const rememberVisit = useEngine((s) => s.rememberVisit);
   const phase = useEngine((s) => s.phase);
@@ -15,6 +16,17 @@ export function SemanticHtmlLayer({ enabled }: { enabled: boolean }) {
 
   return (
     <div className="semantic-html" data-enabled={enabled ? "true" : "false"}>
+      <button
+        type="button"
+        className="sheet-enter"
+        aria-label="Touch the drawing to enter the world inside the vaulted cowl."
+        onClick={() => {
+          if (!canSelectRegion(phase)) return;
+          unlockAudio();
+          rememberVisit("cowl");
+          enterWorld();
+        }}
+      />
       {regions.map((region) => {
         const box = polygonBounds(region.polygon);
         return (
@@ -36,10 +48,16 @@ export function SemanticHtmlLayer({ enabled }: { enabled: boolean }) {
                 setFocusedRegion(null);
               }
             }}
-            onClick={() => {
+            onClick={(event) => {
+              event.stopPropagation();
               unlockAudio();
               rememberVisit(region.id);
-              if (canSelectRegion(phase)) selectRegion(region.id);
+              if (!canSelectRegion(phase)) return;
+              if (event.detail === 0) {
+                selectRegion(region.id);
+                return;
+              }
+              enterWorld();
             }}
           />
         );

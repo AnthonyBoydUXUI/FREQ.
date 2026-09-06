@@ -4,13 +4,24 @@ import { useEffect } from "react";
 import { useEngine } from "@/engine/store";
 import { canExplore, canSelectRegion } from "@/engine/phases";
 import { regions } from "@/content/artworks";
+import { clientToSheetUv } from "@/semantic/hitTest";
 
-export function InputHost({ target }: { target: HTMLElement | null }) {
+const TAP_PX = 16;
+
+export function InputHost({
+  target,
+  sheet,
+}: {
+  target: HTMLElement | null;
+  sheet: HTMLElement | null;
+}) {
   const setPointer = useEngine((s) => s.setPointer);
   const unlockAudio = useEngine((s) => s.unlockAudio);
   const setRail = useEngine((s) => s.setRail);
   const requestReturn = useEngine((s) => s.requestReturn);
   const selectRegion = useEngine((s) => s.selectRegion);
+  const enterWorld = useEngine((s) => s.enterWorld);
+  const rememberVisit = useEngine((s) => s.rememberVisit);
   const setFocusedRegion = useEngine((s) => s.setFocusedRegion);
   const toggleMuted = useEngine((s) => s.toggleMuted);
 
@@ -23,11 +34,25 @@ export function InputHost({ target }: { target: HTMLElement | null }) {
       const y = "clientY" in event ? event.clientY : rect.height / 2;
       const nx = ((x - rect.left) / rect.width) * 2 - 1;
       const ny = -(((y - rect.top) / rect.height) * 2 - 1);
-      return { x: (x - rect.left) / rect.width, y: (y - rect.top) / rect.height, ndcX: nx, ndcY: ny };
+      const sheetRect = sheet?.getBoundingClientRect();
+      const uv = sheetRect
+        ? clientToSheetUv(x, y, sheetRect)
+        : { u: (x - rect.left) / rect.width, v: (y - rect.top) / rect.height, inside: true };
+      return {
+        x: (x - rect.left) / rect.width,
+        y: (y - rect.top) / rect.height,
+        ndcX: nx,
+        ndcY: ny,
+        u: uv.u,
+        v: uv.v,
+        inside: uv.inside,
+      };
     };
 
     let lastY = 0;
     let dragging = false;
+    let downX = 0;
+    let downY = 0;
 
     const onMove = (event: PointerEvent) => {
       const mapped = toNdc(event);
@@ -37,6 +62,9 @@ export function InputHost({ target }: { target: HTMLElement | null }) {
         y: mapped.y,
         ndcX: mapped.ndcX,
         ndcY: mapped.ndcY,
+        u: mapped.u,
+        v: mapped.v,
+        inside: mapped.inside,
         active: pressed,
       });
       if (dragging && canExplore(useEngine.getState().phase)) {
@@ -52,10 +80,14 @@ export function InputHost({ target }: { target: HTMLElement | null }) {
       unlockAudio();
       dragging = true;
       lastY = event.clientY;
-      try {
-        target.setPointerCapture(event.pointerId);
-      } catch {
-        // Capture is best-effort on older browsers.
+      downX = event.clientX;
+      downY = event.clientY;
+      if (canExplore(useEngine.getState().phase)) {
+        try {
+          target.setPointerCapture(event.pointerId);
+        } catch {
+          // Capture is best-effort on older browsers.
+        }
       }
       const mapped = toNdc(event);
       setPointer({
@@ -63,6 +95,9 @@ export function InputHost({ target }: { target: HTMLElement | null }) {
         y: mapped.y,
         ndcX: mapped.ndcX,
         ndcY: mapped.ndcY,
+        u: mapped.u,
+        v: mapped.v,
+        inside: mapped.inside,
         active: true,
       });
     };
@@ -75,7 +110,31 @@ export function InputHost({ target }: { target: HTMLElement | null }) {
       } catch {
         // ignore
       }
-      setPointer({ active: false });
+      const mapped = toNdc(event);
+      const travel = Math.hypot(event.clientX - downX, event.clientY - downY);
+      const engine = useEngine.getState();
+      const fromUi =
+        event.target instanceof Element &&
+        Boolean(event.target.closest("button, a, input, label"));
+      if (
+        !fromUi &&
+        travel <= TAP_PX &&
+        mapped.inside &&
+        canSelectRegion(engine.phase)
+      ) {
+        rememberVisit("cowl");
+        enterWorld();
+      }
+      setPointer({
+        x: mapped.x,
+        y: mapped.y,
+        ndcX: mapped.ndcX,
+        ndcY: mapped.ndcY,
+        u: mapped.u,
+        v: mapped.v,
+        inside: mapped.inside,
+        active: false,
+      });
     };
     const onLeave = () => {
       if (!dragging) setPointer({ inside: false, active: false });
@@ -101,7 +160,7 @@ export function InputHost({ target }: { target: HTMLElement | null }) {
       target.removeEventListener("pointerleave", onLeave);
       target.removeEventListener("wheel", onWheel);
     };
-  }, [target, setPointer, unlockAudio, setRail]);
+  }, [target, sheet, setPointer, unlockAudio, setRail, enterWorld, rememberVisit]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {

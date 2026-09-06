@@ -145,6 +145,7 @@ a {
   aspect-ratio: 3 / 4;
   margin: auto;
   pointer-events: none;
+  z-index: 4;
 }
 
 .semantic-html {
@@ -157,9 +158,20 @@ a {
   background: transparent;
   border: 0;
   pointer-events: none;
+  cursor: pointer;
 }
 
-.semantic-html[data-enabled="true"] .semantic-button {
+.sheet-enter {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  pointer-events: none;
+}
+
+.semantic-html[data-enabled="true"] .semantic-button,
+.semantic-html[data-enabled="true"] .sheet-enter {
   pointer-events: auto;
 }
 
@@ -246,6 +258,68 @@ a {
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.related-marks {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.related-mark {
+  position: absolute;
+  top: 50%;
+  width: min(16vw, 132px);
+  transform: translateY(-62%);
+  pointer-events: auto;
+  text-decoration: none;
+  color: var(--oxidized);
+  display: grid;
+  gap: 0.45rem;
+  opacity: 0.82;
+  transition: opacity 0.35s ease;
+}
+
+.related-mark[data-id="facet"] {
+  left: max(0.75rem, var(--safe-left));
+}
+
+.related-mark[data-id="signal"] {
+  right: max(0.75rem, var(--safe-right));
+}
+
+.related-mark img {
+  width: 100%;
+  height: auto;
+  display: block;
+  box-shadow: 0 10px 28px rgba(28, 27, 25, 0.12);
+}
+
+.related-mark span {
+  display: grid;
+  gap: 0.12rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.related-mark em {
+  font-style: normal;
+  letter-spacing: 0.08em;
+  text-transform: none;
+  font-size: 0.72rem;
+  opacity: 0.72;
+}
+
+.related-mark:hover,
+.related-mark:focus-visible {
+  opacity: 1;
+}
+
+.related-marks[data-hidden="true"] {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .captions {
@@ -364,9 +438,18 @@ a {
   gap: 8vh;
 }
 
+@media (min-width: 900px) {
+  .territories {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2.4rem;
+    align-items: start;
+  }
+}
+
 .territory {
   display: grid;
   gap: 1.1rem;
+  scroll-margin-top: 2rem;
 }
 
 .territory img {
@@ -413,6 +496,24 @@ a {
   list-style: none;
   font-family: var(--font-serif), Georgia, serif;
   font-size: 1.15rem;
+}
+
+@media (max-width: 900px) {
+  .related-marks {
+    inset: auto 0 calc(var(--chrome-space) + 0.15rem) 0;
+    display: flex;
+    justify-content: center;
+    gap: 1.4rem;
+    height: auto;
+  }
+  .related-mark {
+    position: relative;
+    left: auto;
+    right: auto;
+    top: auto;
+    transform: none;
+    width: 72px;
+  }
 }
 
 @media (max-width: 720px) {

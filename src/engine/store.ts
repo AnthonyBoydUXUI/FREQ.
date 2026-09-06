@@ -60,6 +60,7 @@ type EngineState = {
   tickSequence: (delta: number) => void;
   requestReturn: () => void;
   rememberVisit: (id: RegionId) => void;
+  enterWorld: () => void;
 };
 
 const emptyPointer: PointerState = {
@@ -264,5 +265,10 @@ export const useEngine = create<EngineState>((set, get) => ({
       window.localStorage.setItem("freq.visits", JSON.stringify(next));
     }
     rememberCollective(id);
+  },
+  enterWorld: () => {
+    const { phase } = get();
+    if (!canSelectRegion(phase)) return;
+    get().selectRegion("cowl");
   },
 }));

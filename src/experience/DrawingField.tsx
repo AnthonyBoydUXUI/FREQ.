@@ -10,7 +10,7 @@ import { useEngine } from "@/engine/store";
 import { drawingFragment, drawingVertex } from "@/experience/geometry";
 import { profileFor } from "@/quality/detect";
 import { seedUnit } from "@/engine/dailySeed";
-import { woundAmount } from "@/engine/phases";
+import { canSelectRegion, woundAmount } from "@/engine/phases";
 
 export function DrawingField() {
   const [map, depth, paper, mask] = useTexture(
@@ -109,7 +109,19 @@ export function DrawingField() {
 
   return (
     <group ref={group}>
-      <mesh renderOrder={1} userData={{ freq: "drawing" }}>
+      <mesh
+        renderOrder={1}
+        userData={{ freq: "drawing" }}
+        onClick={(event) => {
+          event.stopPropagation();
+          const engine = useEngine.getState();
+          engine.unlockAudio();
+          if (canSelectRegion(engine.phase)) {
+            engine.rememberVisit("cowl");
+            engine.enterWorld();
+          }
+        }}
+      >
         <planeGeometry args={[DRAWING_WIDTH, DRAWING_HEIGHT, 72, 96]} />
         <primitive object={material} attach="material" />
       </mesh>

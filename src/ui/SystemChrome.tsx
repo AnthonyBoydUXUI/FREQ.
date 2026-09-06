@@ -25,9 +25,11 @@ export function SystemChrome() {
         <p className="sr-live" aria-live="polite">
           {phase === "explore"
             ? "Inside the drawing. Drag, scroll, or use arrows to move. The far mark returns you."
-            : hovered
-              ? `${hovered} is responding.`
-              : "The drawing is still."}
+            : phase === "touch" || phase === "transform" || phase === "enter"
+              ? "The cowl is opening. The world is unfolding from the mark."
+              : hovered
+                ? `${hovered} is responding. Touch the drawing to enter the world inside the cowl.`
+                : "Touch the drawing to enter the world inside the mark."}
         </p>
       </div>
 
@@ -73,7 +75,7 @@ export function SystemChrome() {
         >
           Captions
         </button>
-        <Link className="text-button quiet-control" href="/journey">
+        <Link className="text-button" href="/journey">
           Journey
         </Link>
         {webgl === false ? (
