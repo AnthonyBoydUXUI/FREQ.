@@ -2,7 +2,8 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import { heroArtwork } from "@/content/artworks";
+import { artworkById, portalFor } from "@/content/artworks";
+import type { ArtworkId } from "@/engine/types";
 import { useEngine } from "@/engine/store";
 import { SystemChrome } from "@/ui/SystemChrome";
 import { RelatedMarks } from "@/ui/RelatedMarks";
@@ -13,6 +14,7 @@ import { Fallback2D } from "@/experience/Fallback2D";
 import { FreqCursor } from "@/ui/FreqCursor";
 import { SheetHover } from "@/ui/SheetHover";
 import { PhaseTicker } from "@/ui/PhaseTicker";
+import { EchoLayer } from "@/ui/EchoLayer";
 import { cursorIntent } from "@/ui/guide";
 import { canSelectRegion, isImmersed } from "@/engine/phases";
 import { report } from "@/engine/report";
@@ -22,27 +24,40 @@ const FreqCanvas = dynamic(() => import("@/experience/FreqCanvas"), {
   loading: () => null,
 });
 
-export function FreqStage() {
+export function FreqStage({ artworkId = "armor" }: { artworkId?: ArtworkId }) {
   const [stageEl, setStageEl] = useState<HTMLElement | null>(null);
   const [sheetEl, setSheetEl] = useState<HTMLElement | null>(null);
   const [canvasReady, setCanvasReady] = useState(false);
   const boot = useEngine((s) => s.boot);
+  const setArtwork = useEngine((s) => s.setArtwork);
   const webgl = useEngine((s) => s.webgl);
   const phase = useEngine((s) => s.phase);
   const hovered = useEngine((s) => s.hoveredRegionId);
   const inside = useEngine((s) => s.pointer.inside);
+  const currentId = useEngine((s) => s.artworkId);
+  const artwork = artworkById[currentId];
+  const portal = portalFor(currentId);
 
   useEffect(() => {
+    setArtwork(artworkId);
     boot();
     report("first_visual");
-  }, [boot]);
+  }, [artworkId, boot, setArtwork]);
+
+  useEffect(() => {
+    const expected = currentId === "armor" ? "/" : `/t/${currentId}`;
+    if (window.location.pathname !== expected) {
+      window.history.replaceState(null, "", expected);
+    }
+  }, [currentId]);
 
   useEffect(() => {
     document.documentElement.dataset.phase = phase;
-  }, [phase]);
+    document.documentElement.dataset.artwork = currentId;
+  }, [phase, currentId]);
 
   const immersed = isImmersed(phase) || phase === "return";
-  const intent = cursorIntent({ phase, hovered, inside });
+  const intent = cursorIntent({ phase, hovered, inside, artworkId: currentId });
 
   return (
     <section
@@ -51,12 +66,13 @@ export function FreqStage() {
       data-immersed={immersed ? "true" : "false"}
       data-intent={intent}
       data-inside={inside ? "true" : "false"}
+      data-artwork={currentId}
     >
       <h1 className="sr-only">FREQ.</h1>
       <p className="sr-only">
-        The drawing is the interface. Move over it. Touch it to enter the world
-        inside the helmet. Facet and Signal are the other two drawings. Journey
-        is a still path through the same meaning.
+        The drawing is the interface. Move over {artwork.title}. Touch it to enter the
+        world inside the {portal.label.toLowerCase()}. Armor, Facet, and Signal are the
+        three original drawings. Journey is a still path through the same meaning.
       </p>
       <div
         className="drawing-frame"
@@ -67,22 +83,23 @@ export function FreqStage() {
           const engine = useEngine.getState();
           if (!canSelectRegion(engine.phase)) return;
           engine.unlockAudio();
-          engine.rememberVisit("cowl");
+          engine.rememberVisit(portalFor(engine.artworkId).id);
           engine.enterWorld();
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={heroArtwork.paths.display}
-          alt={heroArtwork.alt}
+          src={artwork.paths.display}
+          alt={artwork.alt}
           className="poster"
-          width={heroArtwork.width}
-          height={heroArtwork.height}
+          width={artwork.width}
+          height={artwork.height}
           data-hidden={canvasReady && webgl === true ? "true" : "false"}
         />
         {webgl !== false ? <FreqCanvas onReady={() => setCanvasReady(true)} /> : null}
         {webgl === false ? <Fallback2D /> : null}
         <SheetHover />
+        <EchoLayer />
         <SemanticHtmlLayer enabled />
       </div>
       <RelatedMarks />

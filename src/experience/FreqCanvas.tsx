@@ -36,9 +36,16 @@ function SceneLights() {
   );
 }
 
-export default function FreqCanvas({ onReady }: { onReady?: () => void }) {
+export default function FreqCanvas({
+  onReady,
+  xrCompatible = false,
+}: {
+  onReady?: () => void;
+  xrCompatible?: boolean;
+}) {
   const quality = useEngine((s) => s.quality);
   const setWebgl = useEngine((s) => s.setWebgl);
+  const artworkId = useEngine((s) => s.artworkId);
   const profile = profileFor(quality);
 
   useEffect(() => {
@@ -59,6 +66,9 @@ export default function FreqCanvas({ onReady }: { onReady?: () => void }) {
       }}
       onCreated={({ gl }) => {
         gl.setClearColor(0x000000, 0);
+        if (xrCompatible) {
+          gl.xr.enabled = true;
+        }
         onReady?.();
       }}
       onPointerMissed={() => {
@@ -67,7 +77,7 @@ export default function FreqCanvas({ onReady }: { onReady?: () => void }) {
       }}
     >
       <SceneLights />
-      <Suspense fallback={null}>
+      <Suspense fallback={null} key={artworkId}>
         <DrawingField />
         <SemanticMeshes />
         <HelmetTransformation />

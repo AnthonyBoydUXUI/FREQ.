@@ -1,11 +1,14 @@
 "use client";
 
-import { heroArtwork, regions } from "@/content/artworks";
+import { artworkById, regionsFor } from "@/content/artworks";
 import { useEngine } from "@/engine/store";
 import { isImmersed } from "@/engine/phases";
 import { polygonToClipPath } from "@/semantic/hitTest";
 
 export function SheetHover() {
+  const artworkId = useEngine((s) => s.artworkId);
+  const artwork = artworkById[artworkId];
+  const regions = regionsFor(artworkId);
   const hovered = useEngine((s) => s.hoveredRegionId);
   const inside = useEngine((s) => s.pointer.inside);
   const phase = useEngine((s) => s.phase);
@@ -26,7 +29,7 @@ export function SheetHover() {
           style={{ clipPath: polygonToClipPath(region.polygon) }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={heroArtwork.paths.display} alt="" />
+          <img src={artwork.paths.display} alt="" />
         </div>
       ))}
     </div>

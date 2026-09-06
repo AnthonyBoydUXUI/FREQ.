@@ -1,12 +1,16 @@
 "use client";
 
 import { useMemo } from "react";
-import { heroArtwork, regions } from "@/content/artworks";
+import { artworkById, portalFor, regionsFor } from "@/content/artworks";
 import { useEngine } from "@/engine/store";
 import { polygonBounds } from "@/semantic/hitTest";
 import { canSelectRegion } from "@/engine/phases";
 
 export function Fallback2D() {
+  const artworkId = useEngine((s) => s.artworkId);
+  const artwork = artworkById[artworkId];
+  const regions = regionsFor(artworkId);
+  const portal = portalFor(artworkId);
   const pointer = useEngine((s) => s.pointer);
   const hovered = useEngine((s) => s.hoveredRegionId);
   const phase = useEngine((s) => s.phase);
@@ -28,16 +32,12 @@ export function Fallback2D() {
         onClick={() => {
           if (!canSelectRegion(phase)) return;
           unlockAudio();
-          rememberVisit("cowl");
+          rememberVisit(portal.id);
           useEngine.getState().enterWorld();
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={heroArtwork.paths.display}
-          alt=""
-          className="fallback-image"
-        />
+        <img src={artwork.paths.display} alt="" className="fallback-image" />
         {regions.map((region) => {
           const box = polygonBounds(region.polygon);
           const active = hovered === region.id;
@@ -70,8 +70,11 @@ export function Fallback2D() {
       {phase === "explore" || phase === "enter" || phase === "transform" ? (
         <div className="fallback-world">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={heroArtwork.paths.display} alt="" />
-          <p>Inside the cowl, the same paper continues. Graphite becomes space.</p>
+          <img src={artwork.paths.display} alt="" />
+          <p>
+            Inside the {portal.label.toLowerCase()}, the same paper continues. Graphite
+            becomes space.
+          </p>
           <button type="button" onClick={() => useEngine.getState().requestReturn()}>
             Return to the drawing
           </button>

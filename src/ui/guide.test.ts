@@ -26,10 +26,17 @@ describe("actionGuide", () => {
     );
   });
 
+  it("names the visor on Facet", () => {
+    expect(
+      actionGuide({ phase: "approach", hovered: "visor", inside: true, artworkId: "facet" }),
+    ).toBe("The visor can open. Touch to enter.");
+  });
+
   it("explains how to move once inside", () => {
-    expect(actionGuide({ phase: "explore", hovered: null, inside: false })).toBe(
-      "Drag to look around. Return when you are ready.",
+    expect(actionGuide({ phase: "explore", hovered: null, inside: false })).toContain(
+      "Drag to look around",
     );
+    expect(actionGuide({ phase: "explore", hovered: null, inside: false })).toContain("Facet");
   });
 });
 
@@ -37,6 +44,7 @@ describe("cursorIntent", () => {
   it("invites a click on the sheet and the helmet", () => {
     expect(cursorIntent({ phase: "encounter", hovered: null, inside: true })).toBe("enter");
     expect(cursorIntent({ phase: "approach", hovered: "cowl", inside: true })).toBe("enter");
+    expect(cursorIntent({ phase: "approach", hovered: "visor", inside: true })).toBe("enter");
   });
 
   it("becomes a look cursor inside the world", () => {

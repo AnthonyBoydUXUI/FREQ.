@@ -70,6 +70,15 @@ export function SystemChrome() {
         <Link className="text-button" href="/journey">
           Journey
         </Link>
+        {phase === "explore" ? (
+          <button
+            type="button"
+            className="text-button"
+            onClick={() => useEngine.getState().requestTravel()}
+          >
+            Next drawing
+          </button>
+        ) : null}
         {webgl === false ? (
           <span className="quiet">Flat field</span>
         ) : null}

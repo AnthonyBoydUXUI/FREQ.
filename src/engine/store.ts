@@ -1,7 +1,8 @@
 import { create } from "zustand";
-import type { Phase, QualityMode, RegionId } from "./types";
-import { HERO_ARTWORK_ID } from "./types";
+import type { ArtworkId, Phase, QualityMode, RegionId } from "./types";
+import { HERO_ARTWORK_ID, emptyRegionCounts } from "./types";
 import { dailySeed } from "./dailySeed";
+import { dailyState } from "./daily";
 import {
   canSelectRegion,
   REDUCED_SEQUENCE_SECONDS,
@@ -11,6 +12,8 @@ import {
 import { detectQuality } from "@/quality/detect";
 import { detectWebGL } from "@/quality/webgl";
 import { rememberCollective, report } from "@/engine/report";
+import { isPortalRegion, portalFor } from "@/content/artworks";
+import { nextArtworkId } from "@/content/worldGraph";
 
 export type PointerState = {
   x: number;
@@ -24,12 +27,14 @@ export type PointerState = {
 };
 
 type EngineState = {
+  artworkId: ArtworkId;
   phase: Phase;
   phaseProgress: number;
   transformation: number;
   hoveredRegionId: RegionId | null;
   focusedRegionId: RegionId | null;
   activeRegionId: RegionId | null;
+  pendingTravelId: ArtworkId | null;
   pointer: PointerState;
   quality: QualityMode;
   webgl: boolean | null;
@@ -43,6 +48,7 @@ type EngineState = {
   visitCounts: Record<RegionId, number>;
   rail: number;
   boot: () => void;
+  setArtwork: (id: ArtworkId) => void;
   setPointer: (pointer: Partial<PointerState>) => void;
   setHoveredRegion: (id: RegionId | null) => void;
   setFocusedRegion: (id: RegionId | null) => void;
@@ -59,8 +65,10 @@ type EngineState = {
   setRail: (value: number) => void;
   tickSequence: (delta: number) => void;
   requestReturn: () => void;
+  requestTravel: (id?: ArtworkId) => void;
   rememberVisit: (id: RegionId) => void;
   enterWorld: () => void;
+  enterExploreDirectly: () => void;
 };
 
 const emptyPointer: PointerState = {
@@ -75,30 +83,43 @@ const emptyPointer: PointerState = {
 };
 
 function loadVisits(): Record<RegionId, number> {
-  if (typeof window === "undefined") {
-    return { cowl: 0, plates: 0, forward: 0 };
-  }
+  const empty = emptyRegionCounts();
+  if (typeof window === "undefined") return empty;
   try {
     const raw = window.localStorage.getItem("freq.visits");
-    if (!raw) return { cowl: 0, plates: 0, forward: 0 };
+    if (!raw) return empty;
     const parsed = JSON.parse(raw) as Partial<Record<RegionId, number>>;
-    return {
-      cowl: parsed.cowl ?? 0,
-      plates: parsed.plates ?? 0,
-      forward: parsed.forward ?? 0,
-    };
+    return { ...empty, ...parsed };
   } catch {
-    return { cowl: 0, plates: 0, forward: 0 };
+    return empty;
   }
 }
 
+function encounterReset(artworkId: ArtworkId) {
+  const daily = dailyState(artworkId);
+  return {
+    artworkId,
+    phase: "encounter" as const,
+    phaseProgress: 0,
+    transformation: targetTransformation("encounter", 0) + daily.openness * 0.15,
+    hoveredRegionId: null as RegionId | null,
+    focusedRegionId: null as RegionId | null,
+    activeRegionId: null as RegionId | null,
+    pendingTravelId: null as ArtworkId | null,
+    rail: 0,
+    seed: daily.seed,
+  };
+}
+
 export const useEngine = create<EngineState>((set, get) => ({
+  artworkId: HERO_ARTWORK_ID,
   phase: "boot",
   phaseProgress: 0,
   transformation: 0,
   hoveredRegionId: null,
   focusedRegionId: null,
   activeRegionId: null,
+  pendingTravelId: null,
   pointer: emptyPointer,
   quality: "balanced",
   webgl: null,
@@ -109,7 +130,7 @@ export const useEngine = create<EngineState>((set, get) => ({
   captions: false,
   fps: 60,
   seed: dailySeed(HERO_ARTWORK_ID),
-  visitCounts: { cowl: 0, plates: 0, forward: 0 },
+  visitCounts: emptyRegionCounts(),
   rail: 0,
   boot: () => {
     const reduced =
@@ -117,17 +138,21 @@ export const useEngine = create<EngineState>((set, get) => ({
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const capable = typeof window !== "undefined" ? detectWebGL() : null;
     const quality = typeof window !== "undefined" ? detectQuality() : "balanced";
+    const id = get().artworkId;
     set({
-      phase: "encounter",
-      phaseProgress: 0,
-      transformation: targetTransformation("encounter", 0),
+      ...encounterReset(id),
       reducedMotion: reduced,
       visitCounts: loadVisits(),
-      seed: dailySeed(HERO_ARTWORK_ID),
       webgl: capable,
       quality,
     });
     if (capable === false) report("webgl_fail");
+  },
+  setArtwork: (id) => {
+    if (get().artworkId === id && get().phase !== "boot") {
+      return;
+    }
+    set(encounterReset(id));
   },
   setPointer: (pointer) =>
     set((state) => ({ pointer: { ...state.pointer, ...pointer } })),
@@ -156,7 +181,7 @@ export const useEngine = create<EngineState>((set, get) => ({
   selectRegion: (id) => {
     const { phase } = get();
     if (!canSelectRegion(phase) && phase !== "explore") return;
-    if (id !== "cowl") {
+    if (!isPortalRegion(id)) {
       set({
         hoveredRegionId: id,
         focusedRegionId: id,
@@ -238,12 +263,16 @@ export const useEngine = create<EngineState>((set, get) => ({
       });
       report("enter_world");
     } else if (phase === "return") {
+      const { pendingTravelId, artworkId } = get();
+      if (pendingTravelId && pendingTravelId !== artworkId) {
+        report("travel");
+        set({
+          ...encounterReset(pendingTravelId),
+        });
+        return;
+      }
       set({
-        phase: "encounter",
-        phaseProgress: 0,
-        transformation: targetTransformation("encounter", 0),
-        activeRegionId: null,
-        rail: 0,
+        ...encounterReset(artworkId),
       });
       report("return");
     }
@@ -252,14 +281,26 @@ export const useEngine = create<EngineState>((set, get) => ({
     const { phase } = get();
     if (phase === "explore" || phase === "enter" || phase === "transform") {
       set({
+        pendingTravelId: null,
         phase: "return",
         phaseProgress: 0,
         transformation: targetTransformation("return", 0),
       });
     }
   },
+  requestTravel: (id) => {
+    const { phase, artworkId } = get();
+    if (phase !== "explore" && phase !== "enter") return;
+    const target = id ?? nextArtworkId(artworkId);
+    set({
+      pendingTravelId: target,
+      phase: "return",
+      phaseProgress: 0,
+      transformation: targetTransformation("return", 0),
+    });
+  },
   rememberVisit: (id) => {
-    const next = { ...get().visitCounts, [id]: get().visitCounts[id] + 1 };
+    const next = { ...get().visitCounts, [id]: (get().visitCounts[id] ?? 0) + 1 };
     set({ visitCounts: next });
     if (typeof window !== "undefined") {
       window.localStorage.setItem("freq.visits", JSON.stringify(next));
@@ -267,8 +308,20 @@ export const useEngine = create<EngineState>((set, get) => ({
     rememberCollective(id);
   },
   enterWorld: () => {
-    const { phase } = get();
+    const { phase, artworkId } = get();
     if (!canSelectRegion(phase)) return;
-    get().selectRegion("cowl");
+    get().selectRegion(portalFor(artworkId).id);
+  },
+  enterExploreDirectly: () => {
+    const portal = portalFor(get().artworkId);
+    set({
+      activeRegionId: portal.id,
+      hoveredRegionId: portal.id,
+      focusedRegionId: portal.id,
+      phase: "explore",
+      phaseProgress: 1,
+      transformation: targetTransformation("explore", 1),
+      rail: 0,
+    });
   },
 }));

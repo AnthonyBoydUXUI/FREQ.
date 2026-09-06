@@ -2,24 +2,29 @@
 
 import { useMemo } from "react";
 import * as THREE from "three";
-import { regions } from "@/content/artworks";
+import { regionsFor } from "@/content/artworks";
 import { useEngine } from "@/engine/store";
 import { canSelectRegion } from "@/engine/phases";
 import { createUvPolygonGeometry } from "@/experience/geometry";
 import type { RegionId } from "@/engine/types";
 
 export function SemanticMeshes() {
+  const artworkId = useEngine((s) => s.artworkId);
   const setHoveredRegion = useEngine((s) => s.setHoveredRegion);
   const rememberVisit = useEngine((s) => s.rememberVisit);
   const unlockAudio = useEngine((s) => s.unlockAudio);
   const phase = useEngine((s) => s.phase);
+  const regions = regionsFor(artworkId);
 
   const geometries = useMemo(
     () =>
       Object.fromEntries(
-        regions.map((region) => [region.id, createUvPolygonGeometry(region.polygon)]),
+        regionsFor(artworkId).map((region) => [
+          region.id,
+          createUvPolygonGeometry(region.polygon),
+        ]),
       ) as Record<RegionId, THREE.BufferGeometry>,
-    [],
+    [artworkId],
   );
 
   return (

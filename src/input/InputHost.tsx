@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useEngine } from "@/engine/store";
 import { canExplore, canSelectRegion } from "@/engine/phases";
-import { regions } from "@/content/artworks";
+import { portalFor, regionsFor } from "@/content/artworks";
 import { clientToSheetUv, regionAt } from "@/semantic/hitTest";
 
 const TAP_PX = 16;
@@ -25,6 +25,7 @@ export function InputHost({
   const setFocusedRegion = useEngine((s) => s.setFocusedRegion);
   const setHoveredRegion = useEngine((s) => s.setHoveredRegion);
   const toggleMuted = useEngine((s) => s.toggleMuted);
+  const artworkId = useEngine((s) => s.artworkId);
 
   useEffect(() => {
     if (!target) return;
@@ -69,8 +70,9 @@ export function InputHost({
         active: pressed,
       });
       const engine = useEngine.getState();
+      const currentRegions = regionsFor(engine.artworkId);
       if (canSelectRegion(engine.phase)) {
-        const region = mapped.inside ? regionAt(mapped.u, mapped.v, regions) : null;
+        const region = mapped.inside ? regionAt(mapped.u, mapped.v, currentRegions) : null;
         if (region !== engine.hoveredRegionId) setHoveredRegion(region);
       }
       if (dragging && canExplore(useEngine.getState().phase)) {
@@ -128,7 +130,7 @@ export function InputHost({
         mapped.inside &&
         canSelectRegion(engine.phase)
       ) {
-        rememberVisit("cowl");
+        rememberVisit(portalFor(engine.artworkId).id);
         enterWorld();
       }
       setPointer({
@@ -166,11 +168,22 @@ export function InputHost({
       target.removeEventListener("pointerleave", onLeave);
       target.removeEventListener("wheel", onWheel);
     };
-  }, [target, sheet, setPointer, unlockAudio, setRail, enterWorld, rememberVisit, setHoveredRegion]);
+  }, [
+    target,
+    sheet,
+    artworkId,
+    setPointer,
+    unlockAudio,
+    setRail,
+    enterWorld,
+    rememberVisit,
+    setHoveredRegion,
+  ]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       const engine = useEngine.getState();
+      const currentRegions = regionsFor(engine.artworkId);
       if (event.key === "Escape") {
         requestReturn();
       }
@@ -186,9 +199,11 @@ export function InputHost({
       }
       if (event.key === "Tab" && !event.shiftKey && engine.phase !== "explore") {
         const current = engine.focusedRegionId;
-        const index = current ? regions.findIndex((region) => region.id === current) : -1;
-        const next = regions[(index + 1) % regions.length];
-        setFocusedRegion(next.id);
+        const index = current
+          ? currentRegions.findIndex((region) => region.id === current)
+          : -1;
+        const next = currentRegions[(index + 1) % currentRegions.length];
+        if (next) setFocusedRegion(next.id);
       }
       if (canExplore(engine.phase)) {
         if (event.key === "ArrowUp" || event.key === "w" || event.key === "W") {
@@ -201,7 +216,7 @@ export function InputHost({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [requestReturn, selectRegion, setFocusedRegion, toggleMuted]);
+  }, [requestReturn, selectRegion, setFocusedRegion, toggleMuted, artworkId]);
 
   return null;
 }

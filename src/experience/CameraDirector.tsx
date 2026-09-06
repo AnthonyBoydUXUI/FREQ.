@@ -5,7 +5,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useEngine } from "@/engine/store";
 import { centroid } from "@/semantic/hitTest";
-import { regionById } from "@/content/artworks";
+import { portalFor, regionById } from "@/content/artworks";
 import { uvToLocal } from "@/experience/geometry";
 import {
   approachDistance,
@@ -15,10 +15,6 @@ import {
 } from "@/experience/framing";
 
 const encounterLook = new THREE.Vector3(0, 0, 0);
-const cowlCenter = uvToLocal(
-  centroid(regionById.cowl.polygon).x,
-  centroid(regionById.cowl.polygon).y,
-);
 
 export function CameraDirector() {
   const { camera, size } = useThree();
@@ -33,7 +29,14 @@ export function CameraDirector() {
       pointer,
       reducedMotion,
       rail,
+      artworkId,
     } = useEngine.getState();
+
+    const portal = portalFor(artworkId);
+    const portalCenter = uvToLocal(
+      centroid(portal.polygon).x,
+      centroid(portal.polygon).y,
+    );
 
     const aspect = size.width / Math.max(size.height, 1);
     const encounterZ = fitDistance(aspect);
@@ -49,31 +52,29 @@ export function CameraDirector() {
       }
     } else if (phase === "approach" || phase === "response") {
       const { hoveredRegionId, focusedRegionId } = useEngine.getState();
-      const regionId = hoveredRegionId ?? focusedRegionId ?? "cowl";
-      const focus = uvToLocal(
-        centroid(regionById[regionId].polygon).x,
-        centroid(regionById[regionId].polygon).y,
-      );
+      const regionId = hoveredRegionId ?? focusedRegionId ?? portal.id;
+      const region = regionById[regionId] ?? portal;
+      const focus = uvToLocal(centroid(region.polygon).x, centroid(region.polygon).y);
       desired.current.set(focus.x * 0.16, focus.y * 0.14, approachZ);
       desiredLook.current.set(focus.x * 0.38, focus.y * 0.34, 0);
     } else if (phase === "touch") {
-      desired.current.set(cowlCenter.x * 0.28, cowlCenter.y * 0.26, touchZ);
-      desiredLook.current.copy(cowlCenter);
+      desired.current.set(portalCenter.x * 0.28, portalCenter.y * 0.26, touchZ);
+      desiredLook.current.copy(portalCenter);
     } else if (phase === "transform") {
       const t = progress;
       desired.current.lerpVectors(
-        new THREE.Vector3(cowlCenter.x * 0.32, cowlCenter.y * 0.28, touchZ * 0.9),
-        new THREE.Vector3(cowlCenter.x * 0.08, cowlCenter.y * 0.18 + 0.12, 0.22),
+        new THREE.Vector3(portalCenter.x * 0.32, portalCenter.y * 0.28, touchZ * 0.9),
+        new THREE.Vector3(portalCenter.x * 0.08, portalCenter.y * 0.18 + 0.12, 0.22),
         t,
       );
       desiredLook.current.lerpVectors(
-        cowlCenter,
+        portalCenter,
         new THREE.Vector3(0, 0.95, -4.2),
         t,
       );
     } else if (phase === "enter") {
       desired.current.lerpVectors(
-        new THREE.Vector3(cowlCenter.x * 0.06, 0.88, 0.08),
+        new THREE.Vector3(portalCenter.x * 0.06, 0.88, 0.08),
         new THREE.Vector3(0, 0.82, -1.55),
         progress,
       );

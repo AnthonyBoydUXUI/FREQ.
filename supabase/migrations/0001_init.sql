@@ -92,7 +92,10 @@ alter table collective_memory enable row level security;
 alter table analytics_events enable row level security;
 
 insert into collective_memory (region_id, visits)
-values ('cowl', 0), ('plates', 0), ('forward', 0)
+values
+  ('cowl', 0), ('plates', 0), ('forward', 0),
+  ('visor', 0), ('horns', 0), ('harness', 0),
+  ('crown', 0), ('mask', 0), ('strap', 0)
 on conflict (region_id) do nothing;
 
 create or replace function touch_region(p_region text)
@@ -104,7 +107,11 @@ as $$
 declare
   next_visits bigint;
 begin
-  if p_region not in ('cowl', 'plates', 'forward') then
+  if p_region not in (
+    'cowl', 'plates', 'forward',
+    'visor', 'horns', 'harness',
+    'crown', 'mask', 'strap'
+  ) then
     raise exception 'unknown region';
   end if;
 

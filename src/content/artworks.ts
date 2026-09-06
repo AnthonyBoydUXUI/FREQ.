@@ -1,18 +1,31 @@
 import catalogJson from "@/content/generated/catalog.json";
 import armorStrokes from "@/content/generated/armor-strokes.json";
-import type { RegionId, Vec2 } from "@/engine/types";
+import facetStrokes from "@/content/generated/facet-strokes.json";
+import signalStrokes from "@/content/generated/signal-strokes.json";
+import type { ArtworkId, RegionId, Vec2 } from "@/engine/types";
+import { polygonBounds } from "@/semantic/hitTest";
 
-export type ArtworkId = "armor" | "facet" | "signal";
+export type ImageUvRect = {
+  u0: number;
+  v0: number;
+  u1: number;
+  v1: number;
+};
+
+export type RegionRole = "helmet" | "structure" | "threshold";
 
 export type RegionRecord = {
   id: RegionId;
+  artworkId: ArtworkId;
   label: string;
-  role: "helmet" | "structure" | "threshold";
+  role: RegionRole;
   polygon: Vec2[];
   mask: string;
   meaning: string;
   sonic: string;
   accessibleLabel: string;
+  approach: string;
+  portal: boolean;
 };
 
 export type ArtworkRecord = {
@@ -30,11 +43,13 @@ export type ArtworkRecord = {
     shadows: string;
   };
   alt: string;
+  portalId: RegionId;
+  worldName: string;
 };
 
 const REGION_COPY: Record<
   RegionId,
-  Omit<RegionRecord, "id" | "label" | "role" | "polygon" | "mask">
+  Omit<RegionRecord, "id" | "label" | "role" | "polygon" | "mask" | "artworkId" | "portal">
 > = {
   cowl: {
     meaning:
@@ -42,19 +57,72 @@ const REGION_COPY: Record<
     sonic: "Low architectural tone. Metal under paper.",
     accessibleLabel:
       "Cowl. The vaulted upper form of the drawing. Activate to open the helmet and enter the world inside the mark.",
+    approach: "The helmet can open. Touch to enter.",
   },
   plates: {
     meaning: "Overlapping plates and rivets. Structure that could become streets.",
     sonic: "Dense hatching. Dry graphite grain.",
     accessibleLabel:
       "Plates. Segmented armor in the center of the drawing. The surface lifts, but this region does not yet open a world.",
+    approach: "The plates respond. Touch to enter through the helmet.",
   },
   forward: {
     meaning: "The blunt forward node. A threshold, not yet a door.",
     sonic: "Quieter paper. A held breath.",
     accessibleLabel:
       "Forward node. The rounded front of the drawing. It responds to attention, but the world opens through the cowl.",
+    approach: "A threshold. Touch to enter through the helmet.",
   },
+  visor: {
+    meaning: "The dark band across the faceted head. A slit that can become a room.",
+    sonic: "A thinner metallic edge. Paper folded once.",
+    accessibleLabel:
+      "Visor. The dark band on the faceted helmet. Activate to open this drawing and enter the chamber inside the mark.",
+    approach: "The visor can open. Touch to enter.",
+  },
+  horns: {
+    meaning: "Antenna-like horns. Structure above the visor, not a second door.",
+    sonic: "Dry points of graphite. A scratch more than a tone.",
+    accessibleLabel:
+      "Horns. The protrusions above the visor. They respond to attention. The world opens through the visor.",
+    approach: "The horns respond. Touch to enter through the visor.",
+  },
+  harness: {
+    meaning: "Layered plates of the torso. A harness that could become a floor.",
+    sonic: "Heavier hatching. Graphite laid in rows.",
+    accessibleLabel:
+      "Harness. The plated torso of the drawing. It responds, but the chamber opens through the visor.",
+    approach: "The harness holds. Touch to enter through the visor.",
+  },
+  crown: {
+    meaning: "Jagged strokes at the top of the head. A crown that can become a vault.",
+    sonic: "Quick vertical grain. Paper catching at the edge.",
+    accessibleLabel:
+      "Crown. The jagged top of the profile. Activate to open this drawing and enter the relay inside the mark.",
+    approach: "The crown can open. Touch to enter.",
+  },
+  mask: {
+    meaning: "The banded covering over the face. A mask that remains a mask.",
+    sonic: "Horizontal hatching. A held vowel.",
+    accessibleLabel:
+      "Mask. The banded covering of the face. It responds to attention. The world opens through the crown.",
+    approach: "The mask responds. Touch to enter through the crown.",
+  },
+  strap: {
+    meaning: "The strap and collar plates. A threshold along the neck.",
+    sonic: "Quieter paper under the jaw.",
+    accessibleLabel:
+      "Strap. The collar and shoulder of the drawing. It responds, but the relay opens through the crown.",
+    approach: "A strap. Touch to enter through the crown.",
+  },
+};
+
+type CatalogRegion = {
+  id: RegionId;
+  label: string;
+  role: RegionRole;
+  polygon: number[][];
+  mask: string;
 };
 
 type Catalog = {
@@ -66,16 +134,7 @@ type Catalog = {
     width: number;
     height: number;
     paths: ArtworkRecord["paths"];
-    regions?: Record<
-      RegionId,
-      {
-        id: RegionId;
-        label: string;
-        role: RegionRecord["role"];
-        polygon: number[][];
-        mask: string;
-      }
-    >;
+    regions: Partial<Record<RegionId, CatalogRegion>>;
   }>;
 };
 
@@ -92,6 +151,18 @@ const ALT: Record<ArtworkId, string> = {
     "Original hand drawing of a mechanical head in profile with a hatched crown and segmented neck on translucent paper.",
 };
 
+const PORTAL_ID: Record<ArtworkId, RegionId> = {
+  armor: "cowl",
+  facet: "visor",
+  signal: "crown",
+};
+
+const WORLD_NAME: Record<ArtworkId, string> = {
+  armor: "Nave",
+  facet: "Chamber",
+  signal: "Relay",
+};
+
 export const artworks: ArtworkRecord[] = catalog.artworks.map((artwork) => ({
   id: artwork.id,
   title: artwork.title,
@@ -100,84 +171,78 @@ export const artworks: ArtworkRecord[] = catalog.artworks.map((artwork) => ({
   height: artwork.height,
   paths: artwork.paths,
   alt: ALT[artwork.id],
+  portalId: PORTAL_ID[artwork.id],
+  worldName: WORLD_NAME[artwork.id],
 }));
+
+export const artworkById = Object.fromEntries(
+  artworks.map((artwork) => [artwork.id, artwork]),
+) as Record<ArtworkId, ArtworkRecord>;
 
 export const heroArtwork = artworks.find((item) => item.hero)!;
 
-const armorRegions = catalog.artworks.find((item) => item.id === "armor")?.regions;
-
-if (!armorRegions) {
-  throw new Error("Armor regions are missing from the generated catalog.");
-}
-
-export const regions: RegionRecord[] = (Object.keys(armorRegions) as RegionId[]).map(
-  (id) => {
-    const source = armorRegions[id];
+function regionsFromCatalog(artwork: Catalog["artworks"][number]): RegionRecord[] {
+  const source = artwork.regions;
+  if (!source) {
+    throw new Error(`Regions are missing from the generated catalog for ${artwork.id}.`);
+  }
+  return (Object.keys(source) as RegionId[]).map((id) => {
+    const region = source[id];
+    if (!region) throw new Error(`Missing region ${id} on ${artwork.id}`);
     return {
       id,
-      label: source.label,
-      role: source.role,
-      polygon: source.polygon as unknown as Vec2[],
-      mask: source.mask,
+      artworkId: artwork.id,
+      label: region.label,
+      role: region.role,
+      polygon: region.polygon as unknown as Vec2[],
+      mask: region.mask,
+      portal: region.role === "helmet",
       ...REGION_COPY[id],
     };
-  },
-);
+  });
+}
+
+export const allRegions: RegionRecord[] = catalog.artworks.flatMap(regionsFromCatalog);
 
 export const regionById = Object.fromEntries(
-  regions.map((region) => [region.id, region]),
+  allRegions.map((region) => [region.id, region]),
 ) as Record<RegionId, RegionRecord>;
+
+export function regionsFor(artworkId: ArtworkId): RegionRecord[] {
+  return allRegions.filter((region) => region.artworkId === artworkId);
+}
+
+export function portalFor(artworkId: ArtworkId): RegionRecord {
+  const portal = regionsFor(artworkId).find((region) => region.portal);
+  if (!portal) throw new Error(`No portal region for ${artworkId}`);
+  return portal;
+}
+
+export function isPortalRegion(id: RegionId | null | undefined): boolean {
+  if (!id) return false;
+  return regionById[id]?.portal === true;
+}
 
 export type StrokePoint = { x: number; y: number; d: number };
 
-export const graphiteStrokes = armorStrokes as StrokePoint[];
-
-export const worldGraph = {
-  version: 1,
-  nodes: [
-    {
-      id: "armor.encounter",
-      artworkId: "armor" as const,
-      kind: "encounter" as const,
-    },
-    {
-      id: "armor.cowl.nave",
-      artworkId: "armor" as const,
-      regionId: "cowl" as const,
-      kind: "world" as const,
-    },
-    {
-      id: "facet.territory",
-      artworkId: "facet" as const,
-      kind: "latent" as const,
-    },
-    {
-      id: "signal.territory",
-      artworkId: "signal" as const,
-      kind: "latent" as const,
-    },
-  ],
-  edges: [
-    {
-      from: "armor.encounter",
-      to: "armor.cowl.nave",
-      via: "cowl",
-      transition: "helmet-open",
-    },
-    {
-      from: "armor.cowl.nave",
-      to: "armor.encounter",
-      via: "origin-mural",
-      transition: "collapse",
-    },
-  ],
+const STROKES: Record<ArtworkId, StrokePoint[]> = {
+  armor: armorStrokes as StrokePoint[],
+  facet: facetStrokes as StrokePoint[],
+  signal: signalStrokes as StrokePoint[],
 };
+
+export function strokesFor(artworkId: ArtworkId): StrokePoint[] {
+  return STROKES[artworkId];
+}
+
+/** @deprecated Armor-only alias kept for older tests; prefer strokesFor. */
+export const graphiteStrokes = STROKES.armor;
 
 function rot90cw(uv: Vec2[]): Vec2[] {
   return uv.map(([u, v]) => [1 - v, u]);
 }
 
-export const cowlPanels: { id: string; uv: Vec2[] }[] = [
+const ARMOR_COWL_PANELS: { id: string; uv: Vec2[] }[] = [
   {
     id: "crown",
     uv: rot90cw([
@@ -224,3 +289,93 @@ export const cowlPanels: { id: string; uv: Vec2[] }[] = [
     ]),
   },
 ];
+
+export function panelsFromPolygon(polygon: readonly Vec2[]): { id: string; uv: Vec2[] }[] {
+  const box = polygonBounds(polygon);
+  const mx = (box.minX + box.maxX) / 2;
+  const my = (box.minY + box.maxY) / 2;
+  return [
+    {
+      id: "nw",
+      uv: [
+        [box.minX, box.minY],
+        [mx, box.minY],
+        [mx, my],
+        [box.minX, my],
+      ],
+    },
+    {
+      id: "ne",
+      uv: [
+        [mx, box.minY],
+        [box.maxX, box.minY],
+        [box.maxX, my],
+        [mx, my],
+      ],
+    },
+    {
+      id: "sw",
+      uv: [
+        [box.minX, my],
+        [mx, my],
+        [mx, box.maxY],
+        [box.minX, box.maxY],
+      ],
+    },
+    {
+      id: "se",
+      uv: [
+        [mx, my],
+        [box.maxX, my],
+        [box.maxX, box.maxY],
+        [mx, box.maxY],
+      ],
+    },
+  ];
+}
+
+export function portalPanels(artworkId: ArtworkId): { id: string; uv: Vec2[] }[] {
+  if (artworkId === "armor") return ARMOR_COWL_PANELS;
+  return panelsFromPolygon(portalFor(artworkId).polygon);
+}
+
+/** @deprecated Armor-only alias; prefer portalPanels("armor"). */
+export const cowlPanels = ARMOR_COWL_PANELS;
+
+export type InteriorLayout = {
+  floor: ImageUvRect;
+  left: ImageUvRect;
+  right: ImageUvRect;
+  vault: ImageUvRect;
+  tape: ImageUvRect;
+  scale: number;
+};
+
+export const interiors: Record<ArtworkId, InteriorLayout> = {
+  armor: {
+    floor: { u0: 0.24, v0: 0.3, u1: 0.8, v1: 0.9 },
+    left: { u0: 0.0, v0: 0.02, u1: 0.36, v1: 0.6 },
+    right: { u0: 0.64, v0: 0.08, u1: 1.0, v1: 0.82 },
+    vault: { u0: 0.18, v0: 0.02, u1: 0.74, v1: 0.38 },
+    tape: { u0: 0.05, v0: 0.62, u1: 0.95, v1: 1.0 },
+    scale: 2.55,
+  },
+  facet: {
+    floor: { u0: 0.16, v0: 0.48, u1: 0.68, v1: 0.94 },
+    left: { u0: 0.04, v0: 0.18, u1: 0.4, v1: 0.62 },
+    right: { u0: 0.48, v0: 0.16, u1: 0.92, v1: 0.55 },
+    vault: { u0: 0.3, v0: 0.04, u1: 0.78, v1: 0.32 },
+    tape: { u0: 0.08, v0: 0.7, u1: 0.96, v1: 1.0 },
+    scale: 2.55,
+  },
+  signal: {
+    floor: { u0: 0.16, v0: 0.5, u1: 0.86, v1: 0.92 },
+    left: { u0: 0.04, v0: 0.02, u1: 0.42, v1: 0.36 },
+    right: { u0: 0.38, v0: 0.24, u1: 0.88, v1: 0.62 },
+    vault: { u0: 0.08, v0: 0.0, u1: 0.48, v1: 0.28 },
+    tape: { u0: 0.1, v0: 0.72, u1: 0.96, v1: 1.0 },
+    scale: 2.55,
+  },
+};
+
+export { worldGraph } from "@/content/worldGraph";

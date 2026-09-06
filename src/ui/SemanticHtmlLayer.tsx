@@ -1,11 +1,14 @@
 "use client";
 
-import { regions } from "@/content/artworks";
+import { regionsFor, portalFor } from "@/content/artworks";
 import { polygonBounds } from "@/semantic/hitTest";
 import { useEngine } from "@/engine/store";
 import { canSelectRegion } from "@/engine/phases";
 
 export function SemanticHtmlLayer({ enabled }: { enabled: boolean }) {
+  const artworkId = useEngine((s) => s.artworkId);
+  const regions = regionsFor(artworkId);
+  const portal = portalFor(artworkId);
   const setFocusedRegion = useEngine((s) => s.setFocusedRegion);
   const setHoveredRegion = useEngine((s) => s.setHoveredRegion);
   const selectRegion = useEngine((s) => s.selectRegion);
@@ -21,11 +24,11 @@ export function SemanticHtmlLayer({ enabled }: { enabled: boolean }) {
       <button
         type="button"
         className="sheet-enter"
-        aria-label="Touch the drawing to enter the world inside the vaulted cowl."
+        aria-label={`Touch the drawing to enter the world inside the ${portal.label.toLowerCase()}.`}
         onClick={() => {
           if (!canSelectRegion(phase)) return;
           unlockAudio();
-          rememberVisit("cowl");
+          rememberVisit(portal.id);
           enterWorld();
         }}
       />

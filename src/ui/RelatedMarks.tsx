@@ -7,8 +7,9 @@ import { isImmersed } from "@/engine/phases";
 
 export function RelatedMarks() {
   const phase = useEngine((s) => s.phase);
+  const current = useEngine((s) => s.artworkId);
   const hidden = isImmersed(phase) || phase === "return" || phase === "touch";
-  const related = artworks.filter((artwork) => !artwork.hero);
+  const related = artworks.filter((artwork) => artwork.id !== current);
 
   return (
     <aside className="related-marks" data-hidden={hidden ? "true" : "false"} aria-label="The other two drawings">
@@ -16,9 +17,9 @@ export function RelatedMarks() {
         <Link
           key={artwork.id}
           className="related-mark"
-          href={`/journey#${artwork.id}`}
+          href={artwork.id === "armor" ? "/" : `/t/${artwork.id}`}
           data-id={artwork.id}
-          aria-label={`${artwork.title}. Another original drawing. Opens on the journey.`}
+          aria-label={`${artwork.title}. Another original drawing. Open this territory.`}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -29,7 +30,7 @@ export function RelatedMarks() {
           />
           <span>
             {artwork.title}
-            <em>Another drawing</em>
+            <em>Open this drawing</em>
           </span>
         </Link>
       ))}

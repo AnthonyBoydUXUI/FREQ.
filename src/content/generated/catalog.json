@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "heroArtworkId": "armor",
   "artworks": [
     {
@@ -136,7 +136,105 @@
         "linework": "/artworks/facet/linework.png",
         "shadows": "/artworks/facet/shadows.png"
       },
-      "strokeCount": 360
+      "strokeCount": 360,
+      "regions": {
+        "visor": {
+          "id": "visor",
+          "label": "Visor",
+          "role": "helmet",
+          "polygon": [
+            [
+              0.4,
+              0.18
+            ],
+            [
+              0.68,
+              0.16
+            ],
+            [
+              0.8,
+              0.28
+            ],
+            [
+              0.76,
+              0.46
+            ],
+            [
+              0.52,
+              0.5
+            ],
+            [
+              0.36,
+              0.34
+            ]
+          ],
+          "mask": "/artworks/facet/mask-visor.png"
+        },
+        "horns": {
+          "id": "horns",
+          "label": "Horns",
+          "role": "structure",
+          "polygon": [
+            [
+              0.34,
+              0.06
+            ],
+            [
+              0.58,
+              0.04
+            ],
+            [
+              0.7,
+              0.14
+            ],
+            [
+              0.62,
+              0.22
+            ],
+            [
+              0.4,
+              0.22
+            ],
+            [
+              0.3,
+              0.12
+            ]
+          ],
+          "mask": "/artworks/facet/mask-horns.png"
+        },
+        "harness": {
+          "id": "harness",
+          "label": "Harness",
+          "role": "threshold",
+          "polygon": [
+            [
+              0.16,
+              0.5
+            ],
+            [
+              0.5,
+              0.46
+            ],
+            [
+              0.64,
+              0.58
+            ],
+            [
+              0.58,
+              0.88
+            ],
+            [
+              0.2,
+              0.9
+            ],
+            [
+              0.1,
+              0.68
+            ]
+          ],
+          "mask": "/artworks/facet/mask-harness.png"
+        }
+      }
     },
     {
       "id": "signal",
@@ -153,7 +251,105 @@
         "linework": "/artworks/signal/linework.png",
         "shadows": "/artworks/signal/shadows.png"
       },
-      "strokeCount": 360
+      "strokeCount": 360,
+      "regions": {
+        "crown": {
+          "id": "crown",
+          "label": "Crown",
+          "role": "helmet",
+          "polygon": [
+            [
+              0.1,
+              0.02
+            ],
+            [
+              0.36,
+              0.0
+            ],
+            [
+              0.4,
+              0.14
+            ],
+            [
+              0.28,
+              0.24
+            ],
+            [
+              0.08,
+              0.2
+            ],
+            [
+              0.06,
+              0.08
+            ]
+          ],
+          "mask": "/artworks/signal/mask-crown.png"
+        },
+        "mask": {
+          "id": "mask",
+          "label": "Mask",
+          "role": "structure",
+          "polygon": [
+            [
+              0.3,
+              0.26
+            ],
+            [
+              0.62,
+              0.24
+            ],
+            [
+              0.78,
+              0.38
+            ],
+            [
+              0.74,
+              0.56
+            ],
+            [
+              0.44,
+              0.58
+            ],
+            [
+              0.26,
+              0.42
+            ]
+          ],
+          "mask": "/artworks/signal/mask-mask.png"
+        },
+        "strap": {
+          "id": "strap",
+          "label": "Strap",
+          "role": "threshold",
+          "polygon": [
+            [
+              0.2,
+              0.54
+            ],
+            [
+              0.7,
+              0.5
+            ],
+            [
+              0.86,
+              0.64
+            ],
+            [
+              0.76,
+              0.86
+            ],
+            [
+              0.3,
+              0.88
+            ],
+            [
+              0.14,
+              0.7
+            ]
+          ],
+          "mask": "/artworks/signal/mask-strap.png"
+        }
+      }
     }
   ],
   "audio": {

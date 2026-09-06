@@ -1,15 +1,21 @@
-import type { RegionId } from "@/engine/types";
+import type { ArtworkId, RegionId } from "@/engine/types";
 import {
   emptyCounts,
+  parseArtworkId,
   parseRegionId,
   persistenceMode,
   supabaseConfig,
   type RegionCounts,
   type TelemetryEvent,
 } from "@/server/contract";
+import { deriveEcho, echoId, type EchoDraft, type EchoStatus } from "@/generative/echo";
+import { strokesFor } from "@/content/artworks";
+import { dailyState } from "@/engine/daily";
 
 type GlobalMemory = {
   counts: RegionCounts;
+  events: Partial<Record<TelemetryEvent, number>>;
+  echoes: Record<string, EchoDraft>;
 };
 
 const globalStore = globalThis as typeof globalThis & {
@@ -18,7 +24,7 @@ const globalStore = globalThis as typeof globalThis & {
 
 function processMemory(): GlobalMemory {
   if (!globalStore.__freqMemory) {
-    globalStore.__freqMemory = { counts: emptyCounts() };
+    globalStore.__freqMemory = { counts: emptyCounts(), events: {}, echoes: {} };
   }
   return globalStore.__freqMemory;
 }
@@ -82,6 +88,9 @@ export async function touchRegion(regionId: RegionId): Promise<RegionCounts> {
 }
 
 export async function recordEvent(event: TelemetryEvent, value: number | null): Promise<void> {
+  const memory = processMemory();
+  memory.events[event] = (memory.events[event] ?? 0) + 1;
+
   const remote = supabaseConfig();
   if (!remote) return;
 
@@ -100,15 +109,71 @@ export async function recordEvent(event: TelemetryEvent, value: number | null): 
   }
 }
 
+export function readEvents(): Partial<Record<TelemetryEvent, number>> {
+  return { ...processMemory().events };
+}
+
+export function ensureTodayEcho(artworkId: ArtworkId, date: Date = new Date()): EchoDraft {
+  const daily = dailyState(artworkId, date);
+  const id = echoId(artworkId, daily.day);
+  const memory = processMemory();
+  const existing = memory.echoes[id];
+  if (existing) return existing;
+  const draft: EchoDraft = {
+    id,
+    artworkId,
+    day: daily.day,
+    seed: daily.seed,
+    strokes: deriveEcho(strokesFor(artworkId), daily.seed),
+    status: "draft",
+  };
+  memory.echoes[id] = draft;
+  return draft;
+}
+
+export function listEchoes(): EchoDraft[] {
+  return Object.values(processMemory().echoes).sort((a, b) => b.day.localeCompare(a.day));
+}
+
+export function approvedEcho(artworkId: ArtworkId, date: Date = new Date()): EchoDraft | null {
+  const daily = dailyState(artworkId, date);
+  const draft = processMemory().echoes[echoId(artworkId, daily.day)];
+  if (draft?.status === "approved") return draft;
+  return null;
+}
+
+export function setEchoStatus(id: string, status: EchoStatus): EchoDraft | null {
+  const memory = processMemory();
+  const draft = memory.echoes[id];
+  if (!draft) return null;
+  draft.status = status;
+  return draft;
+}
+
+export function studioSnapshot() {
+  return {
+    persistence: persistenceMode(),
+    regions: { ...processMemory().counts },
+    events: readEvents(),
+    echoes: listEchoes(),
+    generativePublish: false,
+  };
+}
+
 export function backendStatus() {
   return {
     ok: true,
     name: "FREQ.",
-    slice: "armor-cowl-nave",
+    slice: "three-territories",
     persistence: persistenceMode(),
+    territories: ["armor", "facet", "signal"],
   };
 }
 
 export function resetProcessMemoryForTests() {
-  globalStore.__freqMemory = { counts: emptyCounts() };
+  globalStore.__freqMemory = { counts: emptyCounts(), events: {}, echoes: {} };
+}
+
+export function parseStudioArtwork(value: unknown): ArtworkId | null {
+  return parseArtworkId(value);
 }

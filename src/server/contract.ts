@@ -1,6 +1,9 @@
-import type { RegionId } from "@/engine/types";
+import type { ArtworkId, RegionId } from "@/engine/types";
+import { ARTWORK_IDS, REGION_IDS, emptyRegionCounts, isArtworkId } from "@/engine/types";
 
-export const REGION_IDS: readonly RegionId[] = ["cowl", "plates", "forward"];
+export const REGION_IDS_LIST: readonly RegionId[] = REGION_IDS;
+
+export { emptyRegionCounts };
 
 export const TELEMETRY_EVENTS = [
   "webgl_fail",
@@ -8,6 +11,7 @@ export const TELEMETRY_EVENTS = [
   "first_visual",
   "enter_world",
   "return",
+  "travel",
 ] as const;
 
 export type TelemetryEvent = (typeof TELEMETRY_EVENTS)[number];
@@ -15,12 +19,16 @@ export type TelemetryEvent = (typeof TELEMETRY_EVENTS)[number];
 export type RegionCounts = Record<RegionId, number>;
 
 export function emptyCounts(): RegionCounts {
-  return { cowl: 0, plates: 0, forward: 0 };
+  return emptyRegionCounts();
 }
 
 export function parseRegionId(value: unknown): RegionId | null {
-  if (value === "cowl" || value === "plates" || value === "forward") return value;
-  return null;
+  if (typeof value !== "string") return null;
+  return (REGION_IDS as readonly string[]).includes(value) ? (value as RegionId) : null;
+}
+
+export function parseArtworkId(value: unknown): ArtworkId | null {
+  return isArtworkId(value) ? value : null;
 }
 
 export function parseTelemetryEvent(value: unknown): TelemetryEvent | null {
@@ -53,3 +61,13 @@ export function supabaseConfig(): { url: string; key: string } | null {
   if (!url || !key) return null;
   return { url: url.replace(/\/$/, ""), key };
 }
+
+export function curatorAuthorized(request: Request): boolean {
+  const expected = process.env.CURATOR_KEY;
+  if (!expected) return true;
+  const header = request.headers.get("x-curator-key");
+  const url = new URL(request.url);
+  return header === expected || url.searchParams.get("key") === expected;
+}
+
+export { ARTWORK_IDS };
