@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { useEngine } from "@/engine/store";
+import { GuideLine } from "@/ui/GuideLine";
 
 export function SystemChrome() {
   const muted = useEngine((s) => s.muted);
   const volume = useEngine((s) => s.volume);
   const captions = useEngine((s) => s.captions);
   const phase = useEngine((s) => s.phase);
-  const hovered = useEngine((s) => s.hoveredRegionId);
   const toggleMuted = useEngine((s) => s.toggleMuted);
   const setVolume = useEngine((s) => s.setVolume);
   const setCaptions = useEngine((s) => s.setCaptions);
@@ -22,15 +22,7 @@ export function SystemChrome() {
         <p className="mark" aria-hidden="true">
           FREQ.
         </p>
-        <p className="sr-live" aria-live="polite">
-          {phase === "explore"
-            ? "Inside the drawing. Drag, scroll, or use arrows to move. The far mark returns you."
-            : phase === "touch" || phase === "transform" || phase === "enter"
-              ? "The cowl is opening. The world is unfolding from the mark."
-              : hovered
-                ? `${hovered} is responding. Touch the drawing to enter the world inside the cowl.`
-                : "Touch the drawing to enter the world inside the mark."}
-        </p>
+        <GuideLine />
       </div>
 
       <div className="chrome-right">

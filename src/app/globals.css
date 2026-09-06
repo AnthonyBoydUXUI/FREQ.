@@ -87,7 +87,7 @@ a {
   --safe-right: env(safe-area-inset-right, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
-  --chrome-space: 5.4rem;
+  --chrome-space: 6.2rem;
   --frame-pad: 1.1rem;
   --draw-w: min(
     calc(100vw - var(--safe-left) - var(--safe-right) - var(--frame-pad) * 2),
@@ -193,7 +193,7 @@ a {
   z-index: 8;
   pointer-events: none;
   color: var(--oxidized);
-  opacity: 0.62;
+  opacity: 0.92;
   transition: opacity 0.45s ease;
 }
 
@@ -206,6 +206,10 @@ a {
   color: #cfc6b8;
 }
 
+.stage[data-immersed="true"] .guide {
+  color: #f3eee6;
+}
+
 .chrome-left,
 .chrome-right {
   display: flex;
@@ -215,10 +219,26 @@ a {
   flex-wrap: wrap;
 }
 
+.chrome-left {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.28rem;
+  max-width: min(28rem, calc(100vw - 8rem));
+}
+
 .mark {
   font-family: var(--font-serif), "Newsreader", Georgia, serif;
   letter-spacing: 0.18em;
   font-size: 0.72rem;
+}
+
+.guide {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  max-width: 22rem;
 }
 
 .text-button {
@@ -252,6 +272,77 @@ a {
 .quiet-control:hover,
 .quiet-control:focus-visible {
   opacity: 1;
+}
+
+.freq-cursor {
+  display: none;
+}
+
+@media (pointer: fine) {
+  .stage {
+    cursor: none;
+  }
+  .chrome,
+  .related-marks,
+  .skip-link {
+    cursor: auto;
+  }
+  .text-button,
+  .related-mark,
+  .volume input,
+  .sheet-enter,
+  .semantic-button {
+    cursor: pointer;
+  }
+  .freq-cursor {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 12;
+    width: 12px;
+    height: 12px;
+    margin: -6px 0 0 -6px;
+    border: 1px solid var(--graphite);
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    mix-blend-mode: multiply;
+    transition:
+      width 0.16s ease,
+      height 0.16s ease,
+      margin 0.16s ease,
+      background 0.16s ease,
+      opacity 0.16s ease,
+      border-radius 0.16s ease;
+  }
+  .freq-cursor[data-ready="true"] {
+    opacity: 0.88;
+  }
+  .freq-cursor[data-intent="touch"] {
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+  }
+  .freq-cursor[data-intent="notice"] {
+    width: 18px;
+    height: 18px;
+    margin: -9px 0 0 -9px;
+    background: rgba(42, 42, 40, 0.1);
+  }
+  .freq-cursor[data-intent="enter"] {
+    width: 26px;
+    height: 26px;
+    margin: -13px 0 0 -13px;
+    background: rgba(42, 42, 40, 0.16);
+  }
+  .freq-cursor[data-intent="look"] {
+    width: 10px;
+    height: 10px;
+    margin: -5px 0 0 -5px;
+    border-radius: 1px;
+    background: rgba(42, 42, 40, 0.35);
+  }
 }
 
 .quiet {
@@ -325,7 +416,7 @@ a {
 .captions {
   position: absolute;
   left: max(1.2rem, var(--safe-left));
-  bottom: calc(3.3rem + var(--safe-bottom));
+  bottom: calc(4.6rem + var(--safe-bottom));
   z-index: 6;
   font-size: 0.78rem;
   color: var(--quiet);
@@ -523,13 +614,16 @@ a {
     gap: 0.45rem;
   }
   .stage {
-    --chrome-space: 6.4rem;
+    --chrome-space: 7.6rem;
     --frame-pad: 0.7rem;
   }
   .mark,
   .text-button,
   .quiet {
     font-size: 0.68rem;
+  }
+  .guide {
+    font-size: 0.78rem;
   }
 }
 

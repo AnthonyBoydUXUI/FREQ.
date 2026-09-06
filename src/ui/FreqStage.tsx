@@ -10,6 +10,8 @@ import { SemanticHtmlLayer } from "@/ui/SemanticHtmlLayer";
 import { InputHost } from "@/input/InputHost";
 import { AudioHost } from "@/audio/AudioHost";
 import { Fallback2D } from "@/experience/Fallback2D";
+import { FreqCursor } from "@/ui/FreqCursor";
+import { cursorIntent } from "@/ui/guide";
 import { isImmersed } from "@/engine/phases";
 import { report } from "@/engine/report";
 
@@ -24,6 +26,8 @@ export function FreqStage() {
   const boot = useEngine((s) => s.boot);
   const webgl = useEngine((s) => s.webgl);
   const phase = useEngine((s) => s.phase);
+  const hovered = useEngine((s) => s.hoveredRegionId);
+  const inside = useEngine((s) => s.pointer.inside);
 
   useEffect(() => {
     boot();
@@ -35,19 +39,21 @@ export function FreqStage() {
   }, [phase]);
 
   const immersed = isImmersed(phase) || phase === "return";
+  const intent = cursorIntent({ phase, hovered, inside });
 
   return (
     <section
       ref={setStageEl}
       className="stage"
       data-immersed={immersed ? "true" : "false"}
+      data-intent={intent}
+      data-inside={inside ? "true" : "false"}
     >
       <h1 className="sr-only">FREQ.</h1>
       <p className="sr-only">
-        A spatial installation made from three original hand drawings. Armor is
-        the drawing you meet first. Touch the sheet to open the world inside the
-        vaulted cowl. Facet and Signal wait as related territories. An accessible
-        journey names all three.
+        The drawing is the interface. Move over it. Touch it to enter the world
+        inside the helmet. Facet and Signal are the other two drawings. Journey
+        is a still path through the same meaning.
       </p>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -65,6 +71,7 @@ export function FreqStage() {
       </div>
       <RelatedMarks />
       <InputHost target={stageEl} sheet={sheetEl} />
+      <FreqCursor />
       <SystemChrome />
       <AudioHost />
     </section>

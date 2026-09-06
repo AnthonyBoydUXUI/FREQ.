@@ -7,6 +7,7 @@ import { canSelectRegion } from "@/engine/phases";
 
 export function SemanticHtmlLayer({ enabled }: { enabled: boolean }) {
   const setFocusedRegion = useEngine((s) => s.setFocusedRegion);
+  const setHoveredRegion = useEngine((s) => s.setHoveredRegion);
   const selectRegion = useEngine((s) => s.selectRegion);
   const enterWorld = useEngine((s) => s.enterWorld);
   const unlockAudio = useEngine((s) => s.unlockAudio);
@@ -42,6 +43,12 @@ export function SemanticHtmlLayer({ enabled }: { enabled: boolean }) {
             }}
             aria-label={region.accessibleLabel}
             data-focused={focused === region.id ? "true" : "false"}
+            onPointerEnter={() => setHoveredRegion(region.id)}
+            onPointerLeave={() => {
+              if (useEngine.getState().hoveredRegionId === region.id) {
+                setHoveredRegion(null);
+              }
+            }}
             onFocus={() => setFocusedRegion(region.id)}
             onBlur={() => {
               if (useEngine.getState().focusedRegionId === region.id) {

@@ -18,6 +18,7 @@ export function RelatedMarks() {
           className="related-mark"
           href={`/journey#${artwork.id}`}
           data-id={artwork.id}
+          aria-label={`${artwork.title}. Another original drawing. Opens on the journey.`}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -28,7 +29,7 @@ export function RelatedMarks() {
           />
           <span>
             {artwork.title}
-            <em>Related territory</em>
+            <em>Another drawing</em>
           </span>
         </Link>
       ))}
