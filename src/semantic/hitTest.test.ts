@@ -5,6 +5,7 @@ import {
   centroid,
   clientToSheetUv,
   regionAt,
+  polygonToClipPath,
 } from "@/semantic/hitTest";
 
 const square: [number, number][] = [
@@ -60,5 +61,13 @@ describe("regionAt", () => {
   it("returns the region under a uv point", () => {
     expect(regionAt(0.4, 0.4, items)).toBe("cowl");
     expect(regionAt(0.9, 0.9, items)).toBeNull();
+  });
+});
+
+describe("polygonToClipPath", () => {
+  it("turns uv vertices into a CSS polygon", () => {
+    expect(polygonToClipPath(square)).toBe(
+      "polygon(20% 20%, 60% 20%, 60% 60%, 20% 60%)",
+    );
   });
 });

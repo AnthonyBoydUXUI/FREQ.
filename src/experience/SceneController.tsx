@@ -5,8 +5,6 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useEngine } from "@/engine/store";
 import { DRAWING_HEIGHT, DRAWING_WIDTH } from "@/engine/types";
-import { regions } from "@/content/artworks";
-import { pointInPolygon } from "@/semantic/hitTest";
 import { adaptFromFps } from "@/quality/detect";
 import { canExplore } from "@/engine/phases";
 
@@ -32,7 +30,6 @@ export function SceneController() {
 
   useFrame((state, delta) => {
     const engine = useEngine.getState();
-    engine.tickSequence(delta);
 
     const fps = 1 / Math.max(delta, 0.0001);
     fpsWindow.current.push(fps);
@@ -49,24 +46,10 @@ export function SceneController() {
     pointerNdc.set(engine.pointer.ndcX, engine.pointer.ndcY);
     raycaster.setFromCamera(pointerNdc, camera);
     const planeHit = raycaster.ray.intersectPlane(drawingPlane.current, hit.current);
-    if (planeHit) {
+    if (planeHit && !engine.pointer.inside) {
       const u = hit.current.x / DRAWING_WIDTH + 0.5;
       const v = 0.5 - hit.current.y / DRAWING_HEIGHT;
-      const inside = u >= 0 && u <= 1 && v >= 0 && v <= 1;
-      engine.setPointer({ u, v, inside });
-      if (
-        engine.phase === "encounter" ||
-        engine.phase === "notice" ||
-        engine.phase === "approach" ||
-        engine.phase === "response"
-      ) {
-        const region = inside
-          ? regions.find((item) => pointInPolygon(u, v, item.polygon))
-          : undefined;
-        if ((region?.id ?? null) !== engine.hoveredRegionId) {
-          engine.setHoveredRegion(region?.id ?? null);
-        }
-      }
+      engine.setPointer({ u, v, inside: u >= 0 && u <= 1 && v >= 0 && v <= 1 });
     }
 
     if (canExplore(engine.phase) && engine.pointer.active) {

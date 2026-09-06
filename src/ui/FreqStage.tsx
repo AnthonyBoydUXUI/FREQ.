@@ -11,6 +11,8 @@ import { InputHost } from "@/input/InputHost";
 import { AudioHost } from "@/audio/AudioHost";
 import { Fallback2D } from "@/experience/Fallback2D";
 import { FreqCursor } from "@/ui/FreqCursor";
+import { SheetHover } from "@/ui/SheetHover";
+import { PhaseTicker } from "@/ui/PhaseTicker";
 import { cursorIntent } from "@/ui/guide";
 import { isImmersed } from "@/engine/phases";
 import { report } from "@/engine/report";
@@ -23,6 +25,7 @@ const FreqCanvas = dynamic(() => import("@/experience/FreqCanvas"), {
 export function FreqStage() {
   const [stageEl, setStageEl] = useState<HTMLElement | null>(null);
   const [sheetEl, setSheetEl] = useState<HTMLElement | null>(null);
+  const [canvasReady, setCanvasReady] = useState(false);
   const boot = useEngine((s) => s.boot);
   const webgl = useEngine((s) => s.webgl);
   const phase = useEngine((s) => s.phase);
@@ -62,15 +65,17 @@ export function FreqStage() {
         className="poster"
         width={heroArtwork.width}
         height={heroArtwork.height}
-        data-hidden={webgl ? "true" : "false"}
+        data-hidden={canvasReady && webgl === true ? "true" : "false"}
       />
-      {webgl === true ? <FreqCanvas /> : null}
+      {webgl !== false ? <FreqCanvas onReady={() => setCanvasReady(true)} /> : null}
       {webgl === false ? <Fallback2D /> : null}
-      <div className="drawing-frame" ref={setSheetEl}>
+      <div className="drawing-frame" ref={setSheetEl} data-hovered={hovered ?? "none"}>
+        <SheetHover />
         <SemanticHtmlLayer enabled />
       </div>
       <RelatedMarks />
       <InputHost target={stageEl} sheet={sheetEl} />
+      <PhaseTicker />
       <FreqCursor />
       <SystemChrome />
       <AudioHost />

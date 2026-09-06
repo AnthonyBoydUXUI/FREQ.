@@ -36,7 +36,7 @@ function SceneLights() {
   );
 }
 
-export default function FreqCanvas() {
+export default function FreqCanvas({ onReady }: { onReady?: () => void }) {
   const quality = useEngine((s) => s.quality);
   const setWebgl = useEngine((s) => s.setWebgl);
   const profile = profileFor(quality);
@@ -59,6 +59,7 @@ export default function FreqCanvas() {
       }}
       onCreated={({ gl }) => {
         gl.setClearColor(0x000000, 0);
+        onReady?.();
       }}
       onPointerMissed={() => {
         const engine = useEngine.getState();

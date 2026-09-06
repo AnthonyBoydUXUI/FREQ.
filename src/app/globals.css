@@ -275,74 +275,136 @@ a {
 }
 
 .freq-cursor {
-  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 12;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: multiply;
 }
 
-@media (pointer: fine) {
-  .stage {
-    cursor: none;
-  }
-  .chrome,
-  .related-marks,
-  .skip-link {
-    cursor: auto;
-  }
-  .text-button,
-  .related-mark,
-  .volume input,
-  .sheet-enter,
-  .semantic-button {
-    cursor: pointer;
-  }
-  .freq-cursor {
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 12;
-    width: 12px;
-    height: 12px;
-    margin: -6px 0 0 -6px;
-    border: 1px solid var(--graphite);
-    border-radius: 50%;
-    pointer-events: none;
-    opacity: 0;
-    mix-blend-mode: multiply;
-    transition:
-      width 0.16s ease,
-      height 0.16s ease,
-      margin 0.16s ease,
-      background 0.16s ease,
-      opacity 0.16s ease,
-      border-radius 0.16s ease;
-  }
-  .freq-cursor[data-ready="true"] {
-    opacity: 0.88;
-  }
-  .freq-cursor[data-intent="touch"] {
-    width: 20px;
-    height: 20px;
-    margin: -10px 0 0 -10px;
-  }
-  .freq-cursor[data-intent="notice"] {
-    width: 18px;
-    height: 18px;
-    margin: -9px 0 0 -9px;
-    background: rgba(42, 42, 40, 0.1);
-  }
-  .freq-cursor[data-intent="enter"] {
-    width: 26px;
-    height: 26px;
-    margin: -13px 0 0 -13px;
-    background: rgba(42, 42, 40, 0.16);
-  }
-  .freq-cursor[data-intent="look"] {
-    width: 10px;
-    height: 10px;
-    margin: -5px 0 0 -5px;
-    border-radius: 1px;
-    background: rgba(42, 42, 40, 0.35);
-  }
+.freq-cursor[data-ready="true"] {
+  opacity: 1;
+}
+
+.stage:has(.freq-cursor[data-ready="true"]) {
+  cursor: none;
+}
+
+.stage:has(.freq-cursor[data-ready="true"]) .chrome,
+.stage:has(.freq-cursor[data-ready="true"]) .related-mark,
+.stage:has(.freq-cursor[data-ready="true"]) .skip-link,
+.stage:has(.freq-cursor[data-ready="true"]) .text-button,
+.stage:has(.freq-cursor[data-ready="true"]) .volume input {
+  cursor: pointer;
+}
+
+.freq-cursor-ring,
+.freq-cursor-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  pointer-events: none;
+}
+
+.freq-cursor-ring {
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 1.5px solid var(--graphite);
+  border-radius: 50%;
+  transition:
+    width 0.16s ease,
+    height 0.16s ease,
+    margin 0.16s ease,
+    background 0.16s ease,
+    border-radius 0.16s ease;
+}
+
+.freq-cursor-dot {
+  width: 3px;
+  height: 3px;
+  margin: -1.5px 0 0 -1.5px;
+  background: var(--graphite);
+  border-radius: 50%;
+}
+
+.freq-cursor[data-intent="touch"] .freq-cursor-ring {
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+}
+
+.freq-cursor[data-intent="notice"] .freq-cursor-ring {
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  background: rgba(42, 42, 40, 0.1);
+}
+
+.freq-cursor[data-intent="enter"] .freq-cursor-ring {
+  width: 32px;
+  height: 32px;
+  margin: -16px 0 0 -16px;
+  background: rgba(42, 42, 40, 0.16);
+}
+
+.freq-cursor[data-intent="look"] .freq-cursor-ring {
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 1px;
+  background: rgba(42, 42, 40, 0.4);
+}
+
+.freq-cursor[data-pressed="true"] .freq-cursor-ring {
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  background: rgba(42, 42, 40, 0.28);
+}
+
+.sheet-hover {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.sheet-hover[data-hidden="true"] {
+  opacity: 0;
+}
+
+.sheet-hover-region {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity 0.28s ease,
+    transform 0.35s ease,
+    filter 0.35s ease;
+}
+
+.sheet-hover-region img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.sheet-hover-region[data-on="true"] {
+  opacity: 1;
+  transform: translate3d(0, -9px, 0);
+  filter: contrast(1.08) brightness(0.97);
+  box-shadow: 0 12px 24px rgba(28, 27, 25, 0.12);
 }
 
 .quiet {
@@ -656,7 +718,9 @@ a {
 @media (prefers-reduced-motion: reduce) {
   .poster,
   .stage,
-  .fallback-paper {
+  .fallback-paper,
+  .sheet-hover-region,
+  .freq-cursor-ring {
     transition: none;
   }
 }

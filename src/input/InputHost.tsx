@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useEngine } from "@/engine/store";
 import { canExplore, canSelectRegion } from "@/engine/phases";
 import { regions } from "@/content/artworks";
-import { clientToSheetUv } from "@/semantic/hitTest";
+import { clientToSheetUv, regionAt } from "@/semantic/hitTest";
 
 const TAP_PX = 16;
 
@@ -23,6 +23,7 @@ export function InputHost({
   const enterWorld = useEngine((s) => s.enterWorld);
   const rememberVisit = useEngine((s) => s.rememberVisit);
   const setFocusedRegion = useEngine((s) => s.setFocusedRegion);
+  const setHoveredRegion = useEngine((s) => s.setHoveredRegion);
   const toggleMuted = useEngine((s) => s.toggleMuted);
 
   useEffect(() => {
@@ -67,6 +68,11 @@ export function InputHost({
         inside: mapped.inside,
         active: pressed,
       });
+      const engine = useEngine.getState();
+      if (canSelectRegion(engine.phase)) {
+        const region = mapped.inside ? regionAt(mapped.u, mapped.v, regions) : null;
+        if (region !== engine.hoveredRegionId) setHoveredRegion(region);
+      }
       if (dragging && canExplore(useEngine.getState().phase)) {
         const dy = event.clientY - lastY;
         lastY = event.clientY;
@@ -115,7 +121,7 @@ export function InputHost({
       const engine = useEngine.getState();
       const fromUi =
         event.target instanceof Element &&
-        Boolean(event.target.closest("button, a, input, label"));
+        Boolean(event.target.closest(".chrome, .related-mark, .skip-link"));
       if (
         !fromUi &&
         travel <= TAP_PX &&
@@ -160,7 +166,7 @@ export function InputHost({
       target.removeEventListener("pointerleave", onLeave);
       target.removeEventListener("wheel", onWheel);
     };
-  }, [target, sheet, setPointer, unlockAudio, setRail, enterWorld, rememberVisit]);
+  }, [target, sheet, setPointer, unlockAudio, setRail, enterWorld, rememberVisit, setHoveredRegion]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {

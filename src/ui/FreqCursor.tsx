@@ -9,51 +9,62 @@ type CursorPos = {
   y: number;
   ready: boolean;
   overUi: boolean;
+  mouse: boolean;
 };
+
+function isChromeUi(target: EventTarget | null) {
+  return (
+    target instanceof Element &&
+    Boolean(target.closest(".chrome, .related-mark, .skip-link"))
+  );
+}
 
 export function FreqCursor() {
   const phase = useEngine((s) => s.phase);
   const hovered = useEngine((s) => s.hoveredRegionId);
   const inside = useEngine((s) => s.pointer.inside);
+  const pressed = useEngine((s) => s.pointer.active);
   const [pos, setPos] = useState<CursorPos>({
     x: 0,
     y: 0,
     ready: false,
     overUi: false,
+    mouse: false,
   });
 
   useEffect(() => {
-    const fine = window.matchMedia("(pointer: fine)").matches;
-    if (!fine) return undefined;
-
     const onMove = (event: PointerEvent) => {
+      const mouse = event.pointerType === "mouse" || event.pointerType === "pen";
       const stage = document.querySelector(".stage");
       if (!(stage instanceof HTMLElement)) return;
       const rect = stage.getBoundingClientRect();
-      const overUi =
-        event.target instanceof Element &&
-        Boolean(event.target.closest("button, a, input, label, .related-mark"));
       setPos({
         x: event.clientX - rect.left,
         y: event.clientY - rect.top,
         ready: true,
-        overUi,
+        overUi: isChromeUi(event.target),
+        mouse,
       });
     };
-
     window.addEventListener("pointermove", onMove);
     return () => window.removeEventListener("pointermove", onMove);
   }, []);
 
   const intent = cursorIntent({ phase, hovered, inside });
+  const visible = pos.ready && pos.mouse && !pos.overUi;
 
   return (
     <div
       className="freq-cursor"
       aria-hidden="true"
       data-intent={intent}
-      data-ready={pos.ready && !pos.overUi ? "true" : "false"}
+      data-region={hovered ?? "none"}
+      data-pressed={pressed ? "true" : "false"}
+      data-ready={visible ? "true" : "false"}
       style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}
-    />
+    >
+      <span className="freq-cursor-ring" />
+      <span className="freq-cursor-dot" />
+    </div>
   );
 }

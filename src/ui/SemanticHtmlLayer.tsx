@@ -14,6 +14,7 @@ export function SemanticHtmlLayer({ enabled }: { enabled: boolean }) {
   const rememberVisit = useEngine((s) => s.rememberVisit);
   const phase = useEngine((s) => s.phase);
   const focused = useEngine((s) => s.focusedRegionId);
+  const hovered = useEngine((s) => s.hoveredRegionId);
 
   return (
     <div className="semantic-html" data-enabled={enabled ? "true" : "false"}>
@@ -43,6 +44,7 @@ export function SemanticHtmlLayer({ enabled }: { enabled: boolean }) {
             }}
             aria-label={region.accessibleLabel}
             data-focused={focused === region.id ? "true" : "false"}
+            data-hovered={hovered === region.id ? "true" : "false"}
             onPointerEnter={() => setHoveredRegion(region.id)}
             onPointerLeave={() => {
               if (useEngine.getState().hoveredRegionId === region.id) {

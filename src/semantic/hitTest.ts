@@ -71,3 +71,9 @@ export function centroid(polygon: readonly (readonly [number, number])[]) {
   );
   return { x: sum.x / polygon.length, y: sum.y / polygon.length };
 }
+
+export function polygonToClipPath(
+  polygon: readonly (readonly [number, number])[],
+): string {
+  return `polygon(${polygon.map(([x, y]) => `${x * 100}% ${y * 100}%`).join(", ")})`;
+}

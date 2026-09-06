@@ -7,6 +7,7 @@ export function isImmersed(phase: Phase): boolean {
 
 export function canSelectRegion(phase: Phase): boolean {
   return (
+    phase === "boot" ||
     phase === "encounter" ||
     phase === "notice" ||
     phase === "approach" ||
