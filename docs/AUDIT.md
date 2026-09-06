@@ -41,7 +41,7 @@ Authored UV polygons, invisible meshes, HTML buttons for keyboard/AT, no visible
 
 ## H. Audio architecture
 
-Web Audio stems (paper, graphite, drone, metal, air). Unlock on gesture. Mute, volume, captions are real.
+Web Audio stems (paper, graphite, drone, metal, air). Unlock on gesture. Mute, volume, captions are real. Allowlisted anonymous events go to `/api/telemetry`.
 
 ## I. Mobile performance strategy
 
@@ -53,7 +53,7 @@ Designed, not shown. Flags remain false until a functional path exists.
 
 ## K. Supabase architecture
 
-Schema in `supabase/migrations/0001_init.sql`. Not connected. RLS designed. No service key in the client.
+Schema in `supabase/migrations/0001_init.sql`. Optional. The Next.js `/api` backend always runs. Durable memory uses Supabase only when server env is set. RLS designed. No service key in the client.
 
 ## L. Vercel architecture
 

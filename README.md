@@ -32,11 +32,12 @@ Names only. Configure values in Vercel project settings, never in git.
 | Name | Required | Purpose |
 | --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | no | Canonical URL for metadata |
-| `NEXT_PUBLIC_SUPABASE_URL` | no | Reserved; unused in this slice |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | no | Reserved; unused in this slice |
+| `SUPABASE_URL` | no | Optional durable memory. Leave unset for process memory |
 | `SUPABASE_SERVICE_ROLE_KEY` | no | Server-only; do not expose |
+| `NEXT_PUBLIC_SUPABASE_URL` | no | Reserved; unused by the browser |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | no | Reserved; unused by the browser |
 
-The first slice runs entirely from authored local content.
+The first slice runs from authored local content. The Next.js backend always runs. Supabase is optional durability, not required to merge.
 
 ## Architecture
 
@@ -71,9 +72,19 @@ pull requests → preview
 
 Existing project URL on record: `https://freq-two.vercel.app`. Do not create a duplicate Vercel project.
 
+## Backend
+
+Next.js route handlers are the backend. They travel with the Vercel deployment. No separate Express server.
+
+- `GET /api/health`
+- `GET|POST /api/memory` — anonymous cowl / plates / forward counts
+- `POST /api/telemetry` — allowlisted events only
+
+Counts are not shown in the interface. Device-local visits still live in `localStorage`.
+
 ## Supabase
 
-Schema is designed in `supabase/migrations/0001_init.sql`. It is not connected yet. Connecting it is a later phase and may involve a paid project — do not enable until needed.
+Optional. Schema is in `supabase/migrations/0001_init.sql`. Apply it only after creating or reusing one project, then set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in Vercel. Flag any paid plan before enabling it. The installation works without this.
 
 ## Accessibility
 
@@ -86,4 +97,4 @@ Schema is designed in `supabase/migrations/0001_init.sql`. It is not connected y
 
 ## What this slice does not include
 
-AR, VR, curator tools, generative publish, cross-drawing portals, and live Supabase. Those are designed, not built, until this transformation feels extraordinary.
+AR, VR, curator tools, generative publish, and cross-drawing portals. Those wait until this transformation feels extraordinary.

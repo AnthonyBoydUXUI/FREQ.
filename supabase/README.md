@@ -1,15 +1,15 @@
 # Supabase
 
-FREQ. can use Supabase later for content, world state, storage, curator data, generation jobs, and privacy-preserving collective memory.
+Optional durable store for anonymous collective memory and allowlisted events.
 
-It is **not connected** in the first vertical slice.
+The Next.js backend runs without it. Drawings stay in git. The browser never talks to Supabase.
 
-To connect later:
+To connect:
 
 1. Create or reuse one project (do not duplicate)
 2. Apply `supabase/migrations/0001_init.sql`
-3. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in Vercel
-4. Keep `SUPABASE_SERVICE_ROLE_KEY` server-only
+3. Set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in Vercel (server only)
+4. Do not put the service role key in `NEXT_PUBLIC_*`
 5. Confirm RLS before any public write path
 
 Flag any paid plan before enabling it.

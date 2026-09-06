@@ -5,6 +5,7 @@ import { audioPaths } from "@/content/artworks";
 import { regionById } from "@/content/artworks";
 import { SpatialAudio, captionFor, stemGainsFor } from "@/audio/engine";
 import { useEngine } from "@/engine/store";
+import { report } from "@/engine/report";
 
 let singleton: SpatialAudio | null = null;
 
@@ -33,6 +34,11 @@ export function AudioHost() {
       engineRef.current?.setMaster(muted, volume);
     });
   }, [unlocked, muted, volume]);
+
+  useEffect(() => {
+    if (!unlocked) return;
+    report("audio_init");
+  }, [unlocked]);
 
   useEffect(() => {
     if (!unlocked) return;

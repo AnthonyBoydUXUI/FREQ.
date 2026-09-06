@@ -10,6 +10,7 @@ import { InputHost } from "@/input/InputHost";
 import { AudioHost } from "@/audio/AudioHost";
 import { Fallback2D } from "@/experience/Fallback2D";
 import { isImmersed } from "@/engine/phases";
+import { report } from "@/engine/report";
 
 const FreqCanvas = dynamic(() => import("@/experience/FreqCanvas"), {
   ssr: false,
@@ -24,6 +25,7 @@ export function FreqStage() {
 
   useEffect(() => {
     boot();
+    report("first_visual");
   }, [boot]);
 
   useEffect(() => {

@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
+import { backendStatus } from "@/server/store";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export function GET() {
-  return NextResponse.json({
-    ok: true,
-    name: "FREQ.",
-    slice: "armor-cowl-nave",
-  });
+  return NextResponse.json(backendStatus());
 }

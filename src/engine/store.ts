@@ -10,6 +10,7 @@ import {
 } from "./phases";
 import { detectQuality } from "@/quality/detect";
 import { detectWebGL } from "@/quality/webgl";
+import { rememberCollective, report } from "@/engine/report";
 
 export type PointerState = {
   x: number;
@@ -125,6 +126,7 @@ export const useEngine = create<EngineState>((set, get) => ({
       webgl: capable,
       quality,
     });
+    if (capable === false) report("webgl_fail");
   },
   setPointer: (pointer) =>
     set((state) => ({ pointer: { ...state.pointer, ...pointer } })),
@@ -172,7 +174,10 @@ export const useEngine = create<EngineState>((set, get) => ({
     });
   },
   setQuality: (quality) => set({ quality }),
-  setWebgl: (value) => set({ webgl: value }),
+  setWebgl: (value) => {
+    if (value === false) report("webgl_fail");
+    set({ webgl: value });
+  },
   setReducedMotion: (value) => set({ reducedMotion: value }),
   setMuted: (value) => set({ muted: value }),
   toggleMuted: () =>
@@ -230,6 +235,7 @@ export const useEngine = create<EngineState>((set, get) => ({
         transformation: targetTransformation("explore", 1),
         rail: 0,
       });
+      report("enter_world");
     } else if (phase === "return") {
       set({
         phase: "encounter",
@@ -238,6 +244,7 @@ export const useEngine = create<EngineState>((set, get) => ({
         activeRegionId: null,
         rail: 0,
       });
+      report("return");
     }
   },
   requestReturn: () => {
@@ -256,5 +263,6 @@ export const useEngine = create<EngineState>((set, get) => ({
     if (typeof window !== "undefined") {
       window.localStorage.setItem("freq.visits", JSON.stringify(next));
     }
+    rememberCollective(id);
   },
 }));

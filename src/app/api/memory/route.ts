@@ -1,25 +1,27 @@
 import { NextResponse } from "next/server";
-import type { RegionId } from "@/engine/types";
+import { parseRegionId } from "@/server/contract";
+import { allowRequest, clientKey } from "@/server/rateLimit";
+import { readCounts, touchRegion } from "@/server/store";
 
-const counts: Record<RegionId, number> = {
-  cowl: 0,
-  plates: 0,
-  forward: 0,
-};
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-export function GET() {
-  return NextResponse.json({
-    regions: counts,
-    note: "Ephemeral process memory. Supabase is the intended durable home.",
-  });
+export async function GET() {
+  const regions = await readCounts();
+  return NextResponse.json({ regions });
 }
 
 export async function POST(request: Request) {
-  const body = (await request.json().catch(() => null)) as { regionId?: string } | null;
-  const regionId = body?.regionId;
-  if (regionId !== "cowl" && regionId !== "plates" && regionId !== "forward") {
+  if (!allowRequest(clientKey(request))) {
+    return NextResponse.json({ error: "Slow down" }, { status: 429 });
+  }
+
+  const body = (await request.json().catch(() => null)) as { regionId?: unknown } | null;
+  const regionId = parseRegionId(body?.regionId);
+  if (!regionId) {
     return NextResponse.json({ error: "Unknown region" }, { status: 400 });
   }
-  counts[regionId] += 1;
-  return NextResponse.json({ regions: counts });
+
+  const regions = await touchRegion(regionId);
+  return NextResponse.json({ regions });
 }

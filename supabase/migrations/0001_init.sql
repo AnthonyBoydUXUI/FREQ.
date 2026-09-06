@@ -91,6 +91,36 @@ alter table generation_jobs enable row level security;
 alter table collective_memory enable row level security;
 alter table analytics_events enable row level security;
 
+insert into collective_memory (region_id, visits)
+values ('cowl', 0), ('plates', 0), ('forward', 0)
+on conflict (region_id) do nothing;
+
+create or replace function touch_region(p_region text)
+returns bigint
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  next_visits bigint;
+begin
+  if p_region not in ('cowl', 'plates', 'forward') then
+    raise exception 'unknown region';
+  end if;
+
+  insert into collective_memory (region_id, visits)
+  values (p_region, 1)
+  on conflict (region_id) do update
+    set visits = collective_memory.visits + 1,
+        updated_at = now()
+  returning visits into next_visits;
+
+  return next_visits;
+end;
+$$;
+
+revoke all on function touch_region(text) from public;
+
 -- Public read of published artwork only; writes stay on the server.
 create policy artworks_read on artworks for select using (true);
 create policy regions_read on artwork_regions for select using (published = true);

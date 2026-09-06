@@ -13,6 +13,7 @@ FREQ. is a Next.js App Router application with a client-side experience engine.
 - `src/input` — pointer / keyboard / wheel, not mouse-coupled world logic
 - `src/quality` — capability, budgets, WebGL detection
 - `src/ui` — secondary chrome, accessible region buttons
+- `src/server` — thin experience backend: collective memory, allowlisted events
 - `src/content/generated` — derived catalog from the artwork pipeline
 
 ## Experience phases
@@ -30,10 +31,10 @@ The interior nave is the same photograph unfolded into space. A wound in the cow
 
 ## Data
 
-World graph, regions, and assets are authored in-repo. Supabase schema exists for later curator, collective memory, and generation jobs. It is unused until explicitly connected.
+World graph, regions, and assets are authored in-repo. The Next.js `/api` routes are the backend. Collective memory and telemetry persist in process memory unless `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are set. The browser never receives a service role key.
 
 ## APIs
 
-- `GET /api/health`
-- `GET|POST /api/memory` — anonymous region counts, process memory only
-- `POST /api/telemetry` — allowlisted anonymous events
+- `GET /api/health` — liveness and persistence mode
+- `GET|POST /api/memory` — anonymous region counts
+- `POST /api/telemetry` — allowlisted anonymous events (`first_visual`, `audio_init`, `enter_world`, `return`, `webgl_fail`)

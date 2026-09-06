@@ -1,21 +1,26 @@
 import { NextResponse } from "next/server";
+import { parseTelemetryEvent, parseTelemetryValue } from "@/server/contract";
+import { allowRequest, clientKey } from "@/server/rateLimit";
+import { recordEvent } from "@/server/store";
 
-const allowed = new Set([
-  "webgl_fail",
-  "fps",
-  "audio_init",
-  "first_visual",
-  "enter_world",
-  "return",
-]);
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  if (!allowRequest(clientKey(request))) {
+    return NextResponse.json({ ok: false }, { status: 429 });
+  }
+
   const body = (await request.json().catch(() => null)) as {
-    event?: string;
-    value?: number;
+    event?: unknown;
+    value?: unknown;
   } | null;
-  if (!body?.event || !allowed.has(body.event)) {
+
+  const event = parseTelemetryEvent(body?.event);
+  if (!event) {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
+
+  await recordEvent(event, parseTelemetryValue(body?.value));
   return NextResponse.json({ ok: true });
 }
