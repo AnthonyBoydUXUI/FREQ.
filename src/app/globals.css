@@ -19,7 +19,8 @@
 
 html,
 body {
-  min-height: 100%;
+  height: 100%;
+  min-height: 100dvh;
   background: var(--parchment);
   color: var(--graphite);
 }
@@ -71,6 +72,8 @@ a {
 
 .stage {
   position: relative;
+  width: 100%;
+  height: 100dvh;
   min-height: 100dvh;
   overflow: hidden;
   background: var(--parchment);
@@ -86,17 +89,23 @@ a {
 .fallback-stage {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .poster {
-  width: min(92vw, 92dvh * 1.333);
+  width: min(88vw, calc(82dvh * 1.333), 1280px);
   height: auto;
-  max-height: 86dvh;
-  margin: auto;
+  max-height: 82dvh;
+  inset: auto;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   object-fit: contain;
   filter: saturate(0.92);
   transition: opacity 0.8s ease;
   pointer-events: none;
+  z-index: 0;
 }
 
 .poster[data-hidden="true"] {
@@ -104,8 +113,9 @@ a {
 }
 
 .freq-canvas {
-  width: 100%;
-  height: 100%;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 1;
 }
 
 .drawing-frame {
@@ -148,7 +158,7 @@ a {
   align-items: flex-end;
   gap: 1rem;
   padding: 1.1rem 1.2rem 1.15rem;
-  z-index: 5;
+  z-index: 8;
   pointer-events: none;
   color: var(--oxidized);
 }

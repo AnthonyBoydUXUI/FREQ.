@@ -4,11 +4,11 @@ import { useMemo, useRef } from "react";
 import { useTexture } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { cowlPanels, graphiteStrokes, heroArtwork } from "@/content/artworks";
+import { cowlPanels, graphiteStrokes, heroArtwork, regionById } from "@/content/artworks";
 import { useEngine } from "@/engine/store";
 import { profileFor } from "@/quality/detect";
 import { isImmersed } from "@/engine/phases";
-import { uvToLocal } from "@/experience/geometry";
+import { createUvPolygonGeometry, uvToLocal } from "@/experience/geometry";
 
 export function InteriorWorld() {
   const map = useTexture(heroArtwork.paths.display);
@@ -19,6 +19,14 @@ export function InteriorWorld() {
   const group = useRef<THREE.Group>(null);
   const requestReturn = useEngine((s) => s.requestReturn);
 
+  const panelGeometries = useMemo(
+    () => cowlPanels.map((panel) => createUvPolygonGeometry(panel.uv)),
+    [],
+  );
+  const cowlMonument = useMemo(
+    () => createUvPolygonGeometry(regionById.cowl.polygon),
+    [],
+  );
   const profile = profileFor(quality);
   const points = useMemo(() => {
     const geo = new THREE.BufferGeometry();
@@ -79,19 +87,26 @@ export function InteriorWorld() {
         <meshStandardMaterial map={map} roughness={0.93} metalness={0} color="#b7aea1" />
       </mesh>
 
-      {cowlPanels.map((panel, index) => {
-        const x = (index - 2) * 1.32;
-        return (
-          <mesh
-            key={`monument-${panel.id}`}
-            position={[x, 1.32 + (index % 2) * 0.32, -6.4 - index * 1.35]}
-            rotation={[0, index % 2 === 0 ? 0.16 : -0.16, 0]}
-          >
-            <boxGeometry args={[1.75, 3.05, 0.07]} />
-            <meshStandardMaterial map={map} roughness={0.86} metalness={0.06} />
-          </mesh>
-        );
-      })}
+      {panelGeometries.map((geometry, index) => (
+        <mesh
+          key={`monument-${cowlPanels[index].id}`}
+          geometry={geometry}
+          position={[
+            (index % 2 === 0 ? -1.15 : 1.15),
+            1.35,
+            -5.2 - index * 2.15,
+          ]}
+          rotation={[0, index % 2 === 0 ? 0.55 : -0.55, 0]}
+          scale={[6.4, 6.4, 6.4]}
+        >
+          <meshStandardMaterial
+            map={map}
+            roughness={0.86}
+            metalness={0.05}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      ))}
 
       {[0, 1, 2, 3, 4].map((i) => (
         <mesh key={`tower-${i}`} position={[-2.15 + (i % 2) * 4.3, 1.05, -5 - i * 2.55]}>
@@ -101,14 +116,15 @@ export function InteriorWorld() {
       ))}
 
       <mesh
-        position={[0, 1.55, -20.2]}
+        geometry={cowlMonument}
+        position={[0, 1.7, -19.2]}
+        scale={[8.2, 8.2, 8.2]}
         onClick={(event) => {
           event.stopPropagation();
           requestReturn();
         }}
       >
-        <planeGeometry args={[6.4, 4.8]} />
-        <meshStandardMaterial map={map} roughness={0.94} metalness={0} />
+        <meshStandardMaterial map={map} roughness={0.94} metalness={0} side={THREE.DoubleSide} />
       </mesh>
 
       {profile.particles ? (

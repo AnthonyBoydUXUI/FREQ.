@@ -8,7 +8,7 @@ import { centroid } from "@/semantic/hitTest";
 import { regionById } from "@/content/artworks";
 import { uvToLocal } from "@/experience/geometry";
 
-const encounterPos = new THREE.Vector3(0, 0.02, 3.35);
+const encounterPos = new THREE.Vector3(0, 0.02, 2.55);
 const encounterLook = new THREE.Vector3(0, 0, 0);
 const cowlCenter = uvToLocal(
   centroid(regionById.cowl.polygon).x,
@@ -103,8 +103,8 @@ export function CameraDirector() {
 
     const persp = camera as THREE.PerspectiveCamera;
     const fovTarget =
-      phase === "explore" || phase === "enter" ? 46 : phase === "transform" ? 30 : 32;
-    persp.fov = THREE.MathUtils.damp(persp.fov, reducedMotion ? 34 : fovTarget, 2, delta);
+      phase === "explore" || phase === "enter" ? 46 : phase === "transform" ? 28 : 28;
+    persp.fov = THREE.MathUtils.damp(persp.fov, reducedMotion ? 28 : fovTarget, 2, delta);
     persp.updateProjectionMatrix();
   });
 
